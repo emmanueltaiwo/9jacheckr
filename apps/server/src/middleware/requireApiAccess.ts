@@ -7,6 +7,10 @@ export async function requireApiAccess(
   next: NextFunction,
 ) {
   const path = (req.originalUrl ?? req.url ?? '').split('?')[0];
+  if (path.startsWith('/api/auth')) {
+    next();
+    return;
+  }
   if (
     path.startsWith('/api/keys') ||
     path.startsWith('/api/metrics') ||

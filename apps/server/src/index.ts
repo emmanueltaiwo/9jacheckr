@@ -1,7 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { toNodeHandler } from 'better-auth/node';
 import { connectMongo, disconnectMongo } from './db/mongo.js';
+import { getAuth } from './auth/auth.js';
 import verifyNafdacRouter from './routes/verifyNafdacRouter.js';
 import { apiKeyRouter } from './routes/apiKeyRouter.js';
 import { metricsRouter } from './routes/metricsRouter.js';
@@ -42,8 +44,17 @@ async function main() {
     }),
   );
 
-  app.use(express.json({ limit: '1mb' }));
   app.use(httpLogger);
+
+  app.all('/api/auth/*splat', (req, res, next) => {
+    getAuth()
+      .then((auth) =>
+        toNodeHandler(auth as Parameters<typeof toNodeHandler>[0])(req, res),
+      )
+      .catch(next);
+  });
+
+  app.use(express.json({ limit: '1mb' }));
   app.use('/api', apiRateLimiter);
 
   app.get('/health', (_req, res) => {

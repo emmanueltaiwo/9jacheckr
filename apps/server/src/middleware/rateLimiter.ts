@@ -1,4 +1,10 @@
+import type { Request } from 'express';
 import { rateLimit } from 'express-rate-limit';
+
+function isAuthPath(req: Request): boolean {
+  const p = (req.path ?? '').split('?')[0];
+  return p === '/auth' || p.startsWith('/auth/');
+}
 
 export const apiRateLimiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
@@ -8,6 +14,8 @@ export const apiRateLimiter = rateLimit({
   standardHeaders: 'draft-8',
 
   legacyHeaders: false,
+
+  skip: isAuthPath,
 
   message: {
     ok: false,

@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
 import { ArrowUpRight, Check, Radio } from 'lucide-react';
 import { LandingCodeTabs } from '@/components/landing-code-tabs';
 import { SiteNav } from '@/components/site-nav';
-import { getAuth } from '@/lib/auth';
+import { getServerSession } from '@/lib/auth';
 
 const MARQUEE_CODES = [
   '01-5713',
@@ -42,8 +41,7 @@ function MarqueeRow() {
 }
 
 export default async function Home() {
-  const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getServerSession();
   const isSignedIn = Boolean(session?.user);
 
   const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(

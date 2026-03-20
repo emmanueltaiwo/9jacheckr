@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Home, KeyRound, LineChart, LogOut } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
-import { clearSessionBearer } from '@/lib/session-bearer';
 import { cn } from '@/lib/utils';
 
 const MAIN_NAV = [
@@ -118,7 +117,6 @@ export function DashboardShell({
           <button
             type="button"
             onClick={async () => {
-              clearSessionBearer();
               await authClient.signOut();
               window.location.href = '/';
             }}
