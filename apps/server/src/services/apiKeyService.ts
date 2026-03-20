@@ -2,9 +2,9 @@ import crypto from 'crypto';
 import { ApiKeyModel } from '../models/apiKeyModel.js';
 
 function requireApiKeySecret(): string {
-  const s = process.env.API_KEY_SECRET ?? '';
-  if (!s) throw new Error('API_KEY_SECRET is required');
-  return s;
+  const secret = process.env.API_KEY_SECRET ?? '';
+  if (!secret) throw new Error('API_KEY_SECRET is required');
+  return secret;
 }
 
 function hmacKeyHash(rawKey: string): string {

@@ -14,19 +14,21 @@ export async function requireAuthSession(
     });
 
     if (!session?.user) {
-      res
-        .status(401)
-        .json({ ok: false, code: 'UNAUTHORIZED', message: 'Sign in required' });
+      res.status(401).json({
+        ok: false,
+        code: 'UNAUTHORIZED',
+        message: 'Sign in required',
+      });
       return;
     }
 
+    const u = session.user;
     req.authUser = {
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.name,
-      image: session.user.image ?? null,
+      id: u.id,
+      email: u.email,
+      name: u.name ?? undefined,
+      image: u.image ?? undefined,
     };
-
     next();
   } catch (err) {
     next(err);

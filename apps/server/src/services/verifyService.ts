@@ -1,6 +1,5 @@
 import { ProductModel } from '../models/productModel.js';
-import type { ExternalNafdacPayload } from '../types/externalNafdacTypes.js';
-import type { ProductPlain } from '../types/productTypes.js';
+import type { ExternalNafdacPayload, ProductPlain } from '../types/types.js';
 import { logger } from '../utils/logger.js';
 import { fetchProductFromNafdacRegistration } from '../utils/nafdacRegistrationClient.js';
 

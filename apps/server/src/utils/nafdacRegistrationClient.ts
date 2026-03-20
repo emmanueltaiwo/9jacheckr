@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ExternalNafdacPayload } from '../types/externalNafdacTypes.js';
+import type { ExternalNafdacPayload } from '../types/types.js';
 import { logger } from './logger.js';
 import { parseNafdacVerifyModalHtml } from './nafdacHtmlParser.js';
 

@@ -1,14 +1,12 @@
 import { BotTelegramUserModel } from '../models/botTelegramUserModel.js';
 import { BotUsageMonthlyModel } from '../models/botUsageMonthlyModel.js';
-import { formatYearMonthUtc } from './usageMetricsService.js';
-import type { VerifyOutcome } from './usageMetricsService.js';
+import type { BotTelegramPayload, VerifyOutcome } from '../types/types.js';
 
-export type BotTelegramPayload = {
-  id: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-};
+export function formatYearMonthUtc(d = new Date()): string {
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth() + 1;
+  return `${y}-${String(m).padStart(2, '0')}`;
+}
 
 export async function recordBotStart(payload: BotTelegramPayload) {
   const now = new Date();

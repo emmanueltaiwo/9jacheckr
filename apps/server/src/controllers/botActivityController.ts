@@ -1,14 +1,9 @@
 import type { Request, Response } from 'express';
+import type { BotActivityRequestBody } from '../types/types.js';
 import { recordBotStart } from '../services/botMetricsService.js';
 
 export async function postBotActivityController(req: Request, res: Response) {
-  const body = req.body as {
-    event?: string;
-    telegramId?: string;
-    username?: string;
-    firstName?: string;
-    lastName?: string;
-  };
+  const body = req.body as BotActivityRequestBody;
 
   if (body.event !== 'start' || !body.telegramId?.trim()) {
     res.status(400).json({

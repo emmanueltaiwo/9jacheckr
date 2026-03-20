@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from 'express';
-import type { VerifyApiErrorBody } from '../types/productTypes.js';
+import type { VerifyApiErrorBody } from '../types/types.js';
 import { logger } from '../utils/logger.js';
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {

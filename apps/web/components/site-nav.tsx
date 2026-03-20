@@ -1,79 +1,48 @@
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { MarketingNavActions } from '@/components/marketing-nav-actions';
 
-type SiteNavProps = {
-  variant?: 'marketing' | 'minimal';
-  /** When true, show “Back” instead of Sign in (e.g. login page). */
-  authFlow?: boolean;
-  /** When true (marketing only), primary nav action goes to the dashboard. */
-  isSignedIn?: boolean;
-  className?: string;
-};
-
-export function SiteNav({
-  variant = 'marketing',
-  authFlow = false,
-  isSignedIn = false,
-  className,
-}: SiteNavProps) {
+export function SiteNav() {
   return (
     <header
-      className={cn(
-        'sticky top-0 z-50 border-b border-white/5 bg-[#050504]/85 backdrop-blur-xl',
-        className,
-      )}
+      className="sticky top-0 z-50 border-b backdrop-blur-xl"
+      style={{
+        borderColor: 'var(--border-subtle)',
+        background: 'rgba(6,6,6,0.85)',
+      }}
     >
-      <div className="mx-auto flex h-[3.75rem] max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link
-          href="/"
-          className="group flex items-center gap-2.5 font-semibold tracking-tight text-[#eceae1]"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#dfff1f] text-sm font-bold text-black shadow-[0_0_16px_-4px_rgba(223,255,31,0.4)] transition group-hover:bg-[#f0ff6a]">
-            9
-          </span>
-          <span className="hidden text-[15px] sm:inline">9ja Checkr</span>
-        </Link>
+      <div className="mx-auto flex h-14 max-w-[1120px] min-w-0 items-center justify-between gap-3 px-5 sm:px-6">
+        <div className="flex min-w-0 items-center gap-4 md:gap-6">
+          <Link
+            href="/"
+            className="group flex items-center gap-2 text-[14px] font-semibold text-[var(--text)]"
+          >
+            <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[5px] bg-[#dfff1f] text-[12px] font-bold text-black transition group-hover:bg-[#eaff5e]">
+              9
+            </span>
+            9ja Checkr
+          </Link>
 
-        <nav className="flex items-center gap-1 sm:gap-2">
-          {variant === 'marketing' ? (
-            <>
-              <a
-                href="#product"
-                className="hidden rounded-lg px-3 py-1.5 text-[13px] font-medium text-stone-500 transition hover:bg-white/[0.04] hover:text-stone-300 sm:inline"
-              >
-                About
-              </a>
-              <a
-                href="#api"
-                className="hidden rounded-lg px-3 py-1.5 text-[13px] font-medium text-stone-500 transition hover:bg-white/[0.04] hover:text-stone-300 md:inline"
-              >
-                API
-              </a>
-            </>
-          ) : null}
-          {authFlow ? (
-            <Link
-              href="/"
-              className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-stone-500 transition hover:bg-white/[0.04] hover:text-stone-300"
-            >
-              ← Home
+          <nav className="hidden items-center gap-0.5 md:flex">
+            <Link href="/#features" className="btn-ghost">
+              Features
             </Link>
-          ) : isSignedIn ? (
-            <Link
-              href="/dashboard"
-              className="rounded-lg border border-[#dfff1f]/40 bg-[#dfff1f] px-3 py-1.5 text-[13px] font-semibold text-black transition hover:border-[#dfff1f] hover:bg-[#f0ff6a]"
-            >
-              Dashboard
+            <Link href="/#api" className="btn-ghost">
+              API
             </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-[13px] font-medium text-[#eceae1] transition hover:border-[#dfff1f]/50 hover:bg-[#dfff1f] hover:text-black"
+            <a
+              href="https://t.me/NaijaCheckrBot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
             >
-              Sign in
-            </Link>
-          )}
-        </nav>
+              Telegram
+            </a>
+          </nav>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <MarketingNavActions />
+        </div>
       </div>
     </header>
   );

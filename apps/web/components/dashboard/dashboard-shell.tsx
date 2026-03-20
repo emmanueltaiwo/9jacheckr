@@ -1,174 +1,189 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BookOpen, Home, KeyRound, LineChart, LogOut } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { BookOpen, Key, LayoutDashboard, LogOut } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
-const MAIN_NAV = [
-  {
-    href: '/dashboard',
-    label: 'Home',
-    icon: Home,
-    match: (p: string) => p === '/dashboard',
-  },
-  {
-    href: '/dashboard/key',
-    label: 'API key',
-    icon: KeyRound,
-    match: (p: string) => p.startsWith('/dashboard/key'),
-  },
-  {
-    href: '/dashboard/usage',
-    label: 'Usage',
-    icon: LineChart,
-    match: (p: string) => p.startsWith('/dashboard/usage'),
-  },
+const NAV = [
+  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
+  { href: '/dashboard/keys', label: 'API Keys', icon: Key, exact: false },
 ] as const;
 
-type DashboardShellProps = {
-  email: string;
-  apiBaseUrl: string;
-  children: React.ReactNode;
-};
-
-export function DashboardShell({
-  email,
-  apiBaseUrl,
-  children,
-}: DashboardShellProps) {
+export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
-  const displayBase = apiBaseUrl.replace(/\/$/, '') || 'Set API URL in env';
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
+  async function signOut() {
+    await authClient.signOut();
+    router.replace('/');
+    router.refresh();
+  }
+
+  function isActive(href: string, exact: boolean) {
+    return exact ? pathname === href : pathname.startsWith(href);
+  }
 
   return (
-    <div className="bg-app relative min-h-dvh text-[#eceae1] lg:flex">
-      <div
-        className="bg-grid pointer-events-none fixed inset-0 opacity-40 lg:opacity-50"
-        aria-hidden
-      />
-
-      <aside className="relative z-10 hidden w-[15.5rem] shrink-0 flex-col border-r border-white/10 bg-[#030302]/95 backdrop-blur-md lg:flex lg:min-h-dvh">
-        <div className="flex h-[3.75rem] items-center gap-2.5 border-b border-white/10 px-4">
+    <div className="page-bg flex min-h-dvh">
+      <aside className="sidebar hidden flex-col lg:flex">
+        <div
+          className="flex h-14 shrink-0 items-center px-4 border-b"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
           <Link
             href="/"
-            className="flex items-center gap-2.5 font-semibold tracking-tight"
+            className="group flex items-center gap-2 text-[14px] font-semibold text-[var(--text)]"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#dfff1f] text-sm font-bold text-black shadow-[0_0_20px_-4px_rgba(223,255,31,0.45)]">
+            <span className="flex h-6 w-6 items-center justify-center rounded-[5px] bg-[#dfff1f] text-[12px] font-bold text-black transition group-hover:bg-[#eaff5e]">
               9
             </span>
-            <span className="truncate text-[15px]">9ja Checkr</span>
+            9ja Checkr
           </Link>
         </div>
 
-        <nav className="flex flex-col gap-1 p-3" aria-label="Dashboard">
-          <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-600">
-            Menu
-          </p>
-          {MAIN_NAV.map(({ href, label, icon: Icon, match }) => {
-            const active = match(pathname);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition-all duration-200',
-                  active
-                    ? 'bg-[#dfff1f]/10 text-[#eceae1] shadow-[inset_0_0_0_1px_rgba(223,255,31,0.18)]'
-                    : 'text-stone-500 hover:bg-white/[0.04] hover:text-stone-300',
-                )}
-              >
-                <Icon
-                  className={cn(
-                    'h-[1.125rem] w-[1.125rem] shrink-0',
-                    active ? 'text-[#dfff1f]' : '',
-                  )}
-                  strokeWidth={2}
-                />
-                {label}
-              </Link>
-            );
-          })}
-          <a
-            href="/#api"
-            className="mt-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-stone-500 transition-colors hover:bg-white/[0.04] hover:text-stone-300"
+        <nav className="flex-1 overflow-y-auto p-2" aria-label="Sidebar">
+          <ul className="space-y-0.5">
+            {NAV.map(({ href, label, icon: Icon, exact }) => {
+              const active = isActive(href, exact);
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors',
+                      active
+                        ? 'bg-white/8 text-[var(--text)]'
+                        : 'text-[var(--text-2)] hover:bg-white/5 hover:text-[var(--text)]',
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        'h-4 w-4 shrink-0 transition-colors',
+                        active ? 'text-[#dfff1f]' : 'text-[var(--text-3)]',
+                      )}
+                      strokeWidth={active ? 2 : 1.75}
+                    />
+                    {label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div
+            className="mt-4 border-t pt-4"
+            style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <BookOpen
-              className="h-[1.125rem] w-[1.125rem] shrink-0"
-              strokeWidth={2}
-            />
-            API docs
-          </a>
+            <a
+              href="/#api"
+              className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-[var(--text-2)] transition-colors hover:bg-white/5 hover:text-[var(--text)]"
+            >
+              <BookOpen
+                className="h-4 w-4 shrink-0 text-[var(--text-3)]"
+                strokeWidth={1.75}
+              />
+              API Reference
+            </a>
+          </div>
         </nav>
 
-        <div className="mx-3 mt-5 rounded-xl border border-white/10 bg-[#080807]/80 p-3.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-600">
-            Base URL
-          </p>
-          <p className="mt-2 break-all font-mono text-[11px] leading-relaxed text-[#dfff1f]/95">
-            {displayBase}
-          </p>
-        </div>
-
-        <div className="mt-auto border-t border-white/10 p-4">
-          <p className="truncate text-[13px] text-stone-500" title={email}>
-            {email}
-          </p>
+        <div
+          className="shrink-0 border-t p-3"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
+          {user ? (
+            <div
+              className="mb-2 rounded-md border px-3 py-2.5"
+              style={{
+                borderColor: 'var(--border-subtle)',
+                background: 'var(--bg-raised)',
+              }}
+            >
+              {user.name ? (
+                <p className="truncate text-[12px] font-medium text-[var(--text)]">
+                  {user.name}
+                </p>
+              ) : null}
+              <p className="truncate text-[11px] text-[var(--text-3)]">
+                {user.email}
+              </p>
+            </div>
+          ) : null}
           <button
             type="button"
-            onClick={async () => {
-              await authClient.signOut();
-              window.location.href = '/';
-            }}
-            className="mt-3 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[14px] font-medium text-stone-500 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            onClick={() => void signOut()}
+            className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-[13px] font-medium text-[var(--text-2)] transition-colors hover:bg-white/5 hover:text-[var(--text)] focus-visible-ring"
           >
-            <LogOut className="h-4 w-4" strokeWidth={2} />
+            <LogOut
+              className="h-3.5 w-3.5 shrink-0 text-[var(--text-3)]"
+              strokeWidth={1.75}
+            />
             Sign out
           </button>
         </div>
       </aside>
 
-      <div className="relative z-10 flex min-h-dvh flex-1 flex-col pb-[4.5rem] lg:pb-0">
-        <header className="sticky top-0 z-40 flex h-[3.75rem] items-center justify-between border-b border-white/10 bg-[#050504]/90 px-4 backdrop-blur-md lg:hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header
+          className="flex h-14 shrink-0 items-center justify-between border-b px-4 backdrop-blur-md lg:hidden"
+          style={{
+            borderColor: 'var(--border-subtle)',
+            background: 'rgba(6,6,6,0.9)',
+          }}
+        >
           <Link
-            href="/dashboard"
-            className="font-display text-[17px] font-semibold tracking-tight text-[#eceae1]"
+            href="/"
+            className="group flex items-center gap-2 text-[14px] font-semibold text-[var(--text)]"
           >
-            Dashboard
+            <span className="flex h-6 w-6 items-center justify-center rounded-[5px] bg-[#dfff1f] text-[12px] font-bold text-black">
+              9
+            </span>
+            9ja Checkr
           </Link>
-          <a
-            href="/#api"
-            className="text-[13px] font-medium text-stone-500 hover:text-stone-300"
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="text-[13px] text-[var(--text-2)] transition-colors hover:text-[var(--text)]"
           >
-            Docs
-          </a>
+            Sign out
+          </button>
         </header>
-        <main className="flex-1 px-4 py-7 sm:px-6 sm:py-9 lg:px-12 lg:py-11">
-          <div className="mx-auto max-w-xl">{children}</div>
+
+        <div
+          className="flex shrink-0 border-b lg:hidden"
+          style={{
+            borderColor: 'var(--border-subtle)',
+            background: 'var(--bg-subtle)',
+          }}
+        >
+          {NAV.map(({ href, label, icon: Icon, exact }) => {
+            const active = isActive(href, exact);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-1.5 border-b-2 py-3 text-[13px] font-medium transition-colors',
+                  active
+                    ? 'border-[#dfff1f] text-[var(--text)]'
+                    : 'border-transparent text-[var(--text-2)] hover:text-[var(--text)]',
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" strokeWidth={active ? 2 : 1.75} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        <main className="flex-1 overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+          <div className="mx-auto max-w-3xl">{children}</div>
         </main>
       </div>
-
-      <nav
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-stretch justify-around border-t border-white/10 bg-[#030302]/95 px-1 pt-1.5 backdrop-blur-lg pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
-        aria-label="Dashboard mobile"
-      >
-        {MAIN_NAV.map(({ href, label, icon: Icon, match }) => {
-          const active = match(pathname);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors',
-                active ? 'text-[#dfff1f]' : 'text-stone-500',
-              )}
-            >
-              <Icon className="h-5 w-5" strokeWidth={2} />
-              <span className="truncate px-0.5">{label}</span>
-            </Link>
-          );
-        })}
-      </nav>
     </div>
   );
 }

@@ -1,15 +1,6 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalEnv": [
-    "MONGODB_URI",
-    "BETTER_AUTH_SECRET",
-    "BETTER_AUTH_URL",
-    "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET",
-    "NEXT_PUBLIC_API_BASE_URL",
-    "NEXT_PUBLIC_BETTER_AUTH_URL"
-  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -3,11 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { connectMongo, disconnectMongo } from './db/mongo.js';
-import { getAuth } from './auth/auth.js';
+import { closeAuthMongo, getAuth } from './auth/auth.js';
 import verifyNafdacRouter from './routes/verifyNafdacRouter.js';
-import { apiKeyRouter } from './routes/apiKeyRouter.js';
-import { metricsRouter } from './routes/metricsRouter.js';
 import { botRouter } from './routes/botRouter.js';
+import apiKeyRouter from './routes/apiKeyRouter.js';
 import { requireApiAccess } from './middleware/requireApiAccess.js';
 import { logger } from './utils/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
@@ -15,19 +14,9 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { apiRateLimiter } from './middleware/rateLimiter.js';
 
 const PORT = Number(process.env.PORT) || 4000;
-const MONGODB_URI = process.env.MONGODB_URI ?? '';
 
 async function main() {
-  if (!MONGODB_URI) {
-    logger.error('MONGODB_URI is required');
-    process.exit(1);
-  }
-  if (!process.env.API_KEY_SECRET) {
-    logger.error('API_KEY_SECRET is required');
-    process.exit(1);
-  }
-
-  await connectMongo(MONGODB_URI);
+  await connectMongo();
 
   const app = express();
 
@@ -35,22 +24,14 @@ async function main() {
     cors({
       origin: process.env.WEB_APP_URL ?? true,
       credentials: true,
-      allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'x-api-key',
-        'x-internal-bot-token',
-      ],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     }),
   );
 
   app.use(httpLogger);
 
-  app.all('/api/auth/*splat', (req, res, next) => {
-    getAuth()
-      .then((auth) => toNodeHandler(auth as never)(req, res))
-      .catch(next);
-  });
+  const auth = await getAuth();
+  app.all('/api/auth/*splat', toNodeHandler(auth));
 
   app.use(express.json({ limit: '1mb' }));
   app.use('/api', apiRateLimiter);
@@ -61,9 +42,8 @@ async function main() {
 
   app.use('/api', requireApiAccess);
   app.use('/api/verify', verifyNafdacRouter);
-  app.use('/api/keys', apiKeyRouter);
-  app.use('/api/metrics', metricsRouter);
   app.use('/api/bot', botRouter);
+  app.use('/api/keys', apiKeyRouter);
 
   app.use(errorHandler);
 
@@ -76,6 +56,7 @@ async function main() {
     await new Promise<void>((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
     });
+    await closeAuthMongo();
     await disconnectMongo();
     process.exit(0);
   };

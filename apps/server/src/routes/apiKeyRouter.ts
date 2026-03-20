@@ -1,13 +1,15 @@
 import { Router } from 'express';
-import {
-  createApiKeyController,
-  getMyApiKeyController,
-  revokeApiKeyController,
-} from '../controllers/apiKeyController.js';
 import { requireAuthSession } from '../middleware/requireAuthSession.js';
+import {
+  createMyApiKey,
+  getMyApiKey,
+  revokeMyApiKey,
+} from '../controllers/apiKeyController.js';
 
-export const apiKeyRouter = Router();
+const router = Router();
 
-apiKeyRouter.get('/me', requireAuthSession, getMyApiKeyController);
-apiKeyRouter.post('/create', requireAuthSession, createApiKeyController);
-apiKeyRouter.delete('/me', requireAuthSession, revokeApiKeyController);
+router.get('/me', requireAuthSession, getMyApiKey);
+router.post('/create', requireAuthSession, createMyApiKey);
+router.delete('/me', requireAuthSession, revokeMyApiKey);
+
+export default router;

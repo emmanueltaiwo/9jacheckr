@@ -1,13 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
 import type {
+  BotTelegramPayload,
+  ProductPlain,
   VerifyApiErrorBody,
   VerifyApiSuccess,
-} from '../types/productTypes.js';
-import type { ProductPlain } from '../types/productTypes.js';
+} from '../types/types.js';
 import { getOrFetchProduct } from '../services/verifyService.js';
-import { recordVerifyOutcome } from '../services/usageMetricsService.js';
 import { recordBotVerifyMetrics } from '../services/botMetricsService.js';
-import type { BotTelegramPayload } from '../services/botMetricsService.js';
 import { logger } from '../utils/logger.js';
 
 function toBotTelegramPayload(req: Request): BotTelegramPayload | undefined {
@@ -26,8 +25,6 @@ export async function verifyNafdacController(
   res: Response,
   next: NextFunction,
 ) {
-  const trackUserId =
-    req.authContext?.source === 'api_key' ? req.authContext.userId : undefined;
   const isBot = req.authContext?.source === 'bot';
   const botTelegram = toBotTelegramPayload(req);
 
@@ -47,9 +44,6 @@ export async function verifyNafdacController(
     logger.info('verifyController request received', { nafdac: raw });
     const product: ProductPlain | null = await getOrFetchProduct(raw);
     if (!product) {
-      if (trackUserId) {
-        await recordVerifyOutcome(trackUserId, 'not_found');
-      }
       if (isBot) {
         await recordBotVerifyMetrics(botTelegram, 'not_found').catch(() => {});
       }
@@ -62,18 +56,12 @@ export async function verifyNafdacController(
       return;
     }
 
-    if (trackUserId) {
-      await recordVerifyOutcome(trackUserId, 'found');
-    }
     if (isBot) {
       await recordBotVerifyMetrics(botTelegram, 'found').catch(() => {});
     }
     const body: VerifyApiSuccess = { ok: true, product };
     res.status(200).json(body);
   } catch (err) {
-    if (trackUserId) {
-      await recordVerifyOutcome(trackUserId, 'failed').catch(() => {});
-    }
     if (isBot) {
       await recordBotVerifyMetrics(botTelegram, 'failed').catch(() => {});
     }

@@ -7,6 +7,7 @@ export function requireBotInternalToken(
 ) {
   const token = req.header('x-internal-bot-token');
   const expected = process.env.BOT_INTERNAL_TOKEN ?? '';
+
   if (!expected || token !== expected) {
     res.status(401).json({
       ok: false,
@@ -15,5 +16,6 @@ export function requireBotInternalToken(
     });
     return;
   }
+
   next();
 }

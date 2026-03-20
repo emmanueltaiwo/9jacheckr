@@ -1,10 +1,18 @@
 import mongoose from 'mongoose';
 import { logger } from '../utils/logger.js';
 
-export async function connectMongo(uri: string): Promise<void> {
+export async function connectMongo(): Promise<void> {
+  const uri = process.env.MONGODB_URI?.trim();
+  if (!uri) {
+    throw new Error('MONGODB_URI is required');
+  }
+
+  const dbName = process.env.MONGODB_DB_NAME?.trim();
+
   mongoose.set('strictQuery', true);
-  await mongoose.connect(uri);
-  logger.info('MongoDB connected');
+  await mongoose.connect(uri, { dbName });
+
+  logger.info('MongoDB connected', { dbName });
 }
 
 export async function disconnectMongo(): Promise<void> {

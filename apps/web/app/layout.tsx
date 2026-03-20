@@ -25,7 +25,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: '9ja Checkr — NAFDAC number lookup API',
   description:
-    'Look up a NAFDAC registration number and get product details as JSON. Free API key after Google sign-in.',
+    'Look up a NAFDAC registration number and get product details as JSON.',
 };
 
 export default function RootLayout({
@@ -36,9 +36,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${jetbrainsMono.variable} ${outfit.variable} h-full scroll-smooth antialiased`}
+      className={`${plusJakarta.variable} ${jetbrainsMono.variable} ${outfit.variable} h-full scroll-smooth antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full font-sans text-[15px] leading-relaxed tracking-[-0.01em]">
+      <body className="min-h-full min-w-0 overflow-x-hidden font-sans text-[15px] leading-relaxed tracking-[-0.01em]">
         <Providers>{children}</Providers>
         <Analytics />
       </body>

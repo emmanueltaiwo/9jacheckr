@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import type { ExternalNafdacPayload } from '../types/externalNafdacTypes.js';
+import type { ExternalNafdacPayload } from '../types/types.js';
 
 const LABEL_MAP: Record<
   string,
