@@ -48,9 +48,7 @@ async function main() {
 
   app.all('/api/auth/*splat', (req, res, next) => {
     getAuth()
-      .then((auth) =>
-        toNodeHandler(auth as Parameters<typeof toNodeHandler>[0])(req, res),
-      )
+      .then((auth) => toNodeHandler(auth as never)(req, res))
       .catch(next);
   });
 

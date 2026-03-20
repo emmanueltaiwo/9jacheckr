@@ -8,28 +8,15 @@ export async function requireAuthSession(
   next: NextFunction,
 ) {
   try {
-    const auth = (await getAuth()) as {
-      api: {
-        getSession: (o: { headers: Headers }) => Promise<{
-          user?: {
-            id: string;
-            email: string;
-            name: string;
-            image?: string | null;
-          };
-        } | null>;
-      };
-    };
+    const auth = await getAuth();
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
 
     if (!session?.user) {
-      res.status(401).json({
-        ok: false,
-        code: 'UNAUTHORIZED',
-        message: 'Sign in required',
-      });
+      res
+        .status(401)
+        .json({ ok: false, code: 'UNAUTHORIZED', message: 'Sign in required' });
       return;
     }
 
