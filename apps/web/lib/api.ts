@@ -1,10 +1,9 @@
-export async function fetchApp<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
-  const res = await fetch(path, {
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+export async function appApiGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
-    ...init,
+    cache: 'no-store',
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok)
@@ -12,18 +11,26 @@ export async function fetchApp<T>(
   return data as T;
 }
 
-export async function appApiGet<T>(path: string): Promise<T> {
-  return fetchApp<T>(path, { cache: 'no-store' });
-}
-
 export async function appApiPost<T>(path: string): Promise<T> {
-  return fetchApp<T>(path, {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok)
+    throw new Error((data as { message?: string }).message ?? 'Request failed');
+  return data as T;
 }
 
 export async function appApiDelete<T>(path: string): Promise<T> {
-  return fetchApp<T>(path, { method: 'DELETE' });
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok)
+    throw new Error((data as { message?: string }).message ?? 'Request failed');
+  return data as T;
 }
