@@ -11,19 +11,21 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@types/morgan": "^1.9.10",
-    "@types/multer": "^2.1.0",
+    "@better-auth/mongo-adapter": "^1.5.5",
     "axios": "^1.13.6",
+    "better-auth": "^1.5.5",
     "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.1",
+    "mongodb": "^7.1.0",
     "mongoose": "^9.3.1",
-    "morgan": "^1.10.1",
-    "multer": "^2.1.1",
-    "tesseract.js": "^7.0.0"
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/morgan": "^1.9.10",
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
     "tsx": "^4.21.0",

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Next.js
+.next/
+out/
+
+# Build / misc
+build/
+.DS_Store
+*.pem
+
+# Env (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Vercel
+.vercel
+
+# Turbo / TS
+.turbo
+*.tsbuildinfo

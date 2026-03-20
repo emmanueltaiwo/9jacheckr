@@ -1,0 +1,11 @@
+# Build
+dist/
+
+# Local env
+.env
+.env.*
+!.env.example
+
+*.log
+.turbo
+*.tsbuildinfo

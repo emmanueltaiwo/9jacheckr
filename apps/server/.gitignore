@@ -1,0 +1,12 @@
+# Build
+dist/
+
+# Local env (use .env.example at repo root as reference)
+.env
+.env.*
+!.env.example
+
+# Logs and caches
+*.log
+.turbo
+*.tsbuildinfo

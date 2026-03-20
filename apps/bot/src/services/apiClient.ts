@@ -16,6 +16,9 @@ export async function verifyNafdac(
     const res = await axios.get<unknown>(url, {
       timeout: 20_000,
       validateStatus: () => true,
+      headers: {
+        'x-internal-bot-token': process.env.BOT_INTERNAL_TOKEN ?? '',
+      },
     });
 
     const data = res.data;
@@ -48,4 +51,3 @@ export async function verifyNafdac(
     };
   }
 }
-

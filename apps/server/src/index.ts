@@ -1,13 +1,17 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { connectMongo, disconnectMongo } from './db/mongo.js';
 import verifyNafdacRouter from './routes/verifyNafdacRouter.js';
+import { apiKeyRouter } from './routes/apiKeyRouter.js';
+import { metricsRouter } from './routes/metricsRouter.js';
+import { requireApiAccess } from './middleware/requireApiAccess.js';
 import { logger } from './utils/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { apiRateLimiter } from './middleware/rateLimiter.js';
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 4000;
 const MONGODB_URI = process.env.MONGODB_URI ?? '';
 
 async function main() {
@@ -15,10 +19,21 @@ async function main() {
     logger.error('MONGODB_URI is required');
     process.exit(1);
   }
+  if (!process.env.API_KEY_SECRET) {
+    logger.error('API_KEY_SECRET is required');
+    process.exit(1);
+  }
 
   await connectMongo(MONGODB_URI);
 
   const app = express();
+
+  app.use(
+    cors({
+      origin: process.env.WEB_APP_URL ?? true,
+      credentials: true,
+    }),
+  );
 
   app.use(express.json({ limit: '1mb' }));
   app.use(httpLogger);
@@ -28,7 +43,10 @@ async function main() {
     res.status(200).json({ ok: true, service: '9ja-checkr-api' });
   });
 
+  app.use('/api', requireApiAccess);
   app.use('/api/verify', verifyNafdacRouter);
+  app.use('/api/keys', apiKeyRouter);
+  app.use('/api/metrics', metricsRouter);
 
   app.use(errorHandler);
 

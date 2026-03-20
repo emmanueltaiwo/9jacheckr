@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+
+:root {
+  --bg: #050504;
+  --bg-elevated: #0c0b09;
+  --ink: #e8e6e1;
+  --muted: #7a7770;
+  --line: rgba(232, 230, 225, 0.06);
+  --accent: #dfff1f;
+  --accent-dim: rgba(223, 255, 31, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans:
+    var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-outfit), var(--font-plus-jakarta), sans-serif;
+}
+
+body {
+  min-height: 100dvh;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+/* App shell — warm black, one faint accent bloom (not a rainbow mesh) */
+.bg-app {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(
+      ellipse 120% 70% at 85% -20%,
+      var(--accent-dim),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 80% 50% at 0% 100%,
+      rgba(232, 230, 225, 0.03),
+      transparent 50%
+    ),
+    linear-gradient(180deg, #070605 0%, var(--bg) 45%, #030302 100%);
+}
+
+.bg-grid {
+  background-size: 64px 64px;
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  mask-image: radial-gradient(
+    ellipse 90% 65% at 50% -10%,
+    black 15%,
+    transparent 70%
+  );
+}
+
+/* Landing-only: noise + diagonal hairlines */
+.landing-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.landing-diagonals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    -12deg,
+    transparent,
+    transparent 79px,
+    rgba(232, 230, 225, 0.02) 79px,
+    rgba(232, 230, 225, 0.02) 80px
+  );
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+
+/* Glass panel (dashboard + cards) */
+.panel {
+  border-radius: 1rem;
+  border: 1px solid rgba(232, 230, 225, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+    0 24px 80px -32px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+}
+
+.panel-glow {
+  position: relative;
+}
+
+.panel-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(223, 255, 31, 0.22),
+    rgba(232, 230, 225, 0.06) 55%,
+    rgba(255, 255, 255, 0.04)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  animation: shimmer 1.2s ease-in-out infinite;
+}
