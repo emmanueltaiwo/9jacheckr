@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono, Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { Analytics } from '@vercel/analytics/next';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -39,6 +40,7 @@ export default function RootLayout({
     >
       <body className="min-h-full font-sans text-[15px] leading-relaxed tracking-[-0.01em]">
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );

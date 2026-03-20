@@ -121,6 +121,18 @@ export default async function Home() {
                   See request example
                 </a>
               </div>
+
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-stone-500">
+                <a
+                  href="https://t.me/NaijaCheckrBot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-[#dfff1f] underline decoration-[#dfff1f]/35 underline-offset-2 transition hover:decoration-[#dfff1f]"
+                >
+                  Use the Telegram bot for free
+                </a>
+                .
+              </p>
             </div>
 
             <div className="relative lg:col-span-5">
