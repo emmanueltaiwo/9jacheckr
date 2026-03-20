@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from '@better-auth/mongo-adapter';
+import { bearer } from 'better-auth/plugins';
 import { getMongoClient } from './mongoNative';
 
 export type AppAuth = NonNullable<ReturnType<typeof betterAuth>>;
@@ -38,6 +39,7 @@ async function createAuth(): Promise<AppAuth> {
     secret: BETTER_AUTH_SECRET,
     trustedOrigins: [apiOrigin],
     database: mongodbAdapter(db, { client: mongoClient }),
+    plugins: [bearer()],
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID ?? '',

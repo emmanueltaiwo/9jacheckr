@@ -32,6 +32,12 @@ async function main() {
     cors({
       origin: process.env.WEB_APP_URL ?? true,
       credentials: true,
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'x-api-key',
+        'x-internal-bot-token',
+      ],
     }),
   );
 

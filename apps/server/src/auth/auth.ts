@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from '@better-auth/mongo-adapter';
+import { bearer } from 'better-auth/plugins';
 import { getMongoClient } from '../utils/mongoNative.js';
 
 let authInstance: unknown = null;
@@ -24,6 +25,7 @@ export async function getAuth() {
     secret: process.env.BETTER_AUTH_SECRET,
     trustedOrigins: [process.env.WEB_APP_URL || 'http://localhost:3000'],
     database: mongodbAdapter(db, { client }),
+    plugins: [bearer()],
   });
 
   return authInstance;
