@@ -4,7 +4,7 @@ Express API for **NAFDAC verify** (`GET /api/verify/:nafdac` with `x-api-key` or
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js **20+** (required: Better Auth / `undici` expect the global `File` API; Node 18 crashes at startup)
 - MongoDB (shared with the web app for `apikeys` and Better Auth)
 
 ## Environment
