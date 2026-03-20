@@ -1,7 +1,4 @@
-import {
-  fetchAndStoreSessionBearer,
-  getSessionBearer,
-} from './session-bearer';
+import { fetchAndStoreSessionBearer, getSessionBearer } from './session-bearer';
 
 const base = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/$/, '');
 export const API_BASE_URL = base;

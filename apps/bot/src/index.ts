@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import { Telegraf } from 'telegraf';
 import { registerVerifyCommand } from './commands/verifyCommand.js';
+import {
+  recordBotActivity,
+  telegramUserToCaller,
+} from './services/apiClient.js';
 import { logger } from './utils/logger.js';
 import { verifyButtonMarkup } from './utils/verifyButton.js';
 
@@ -24,6 +28,9 @@ async function main() {
   registerVerifyCommand(bot, apiBase);
 
   bot.command('start', async (ctx) => {
+    if (ctx.from) {
+      void recordBotActivity(apiBase, 'start', telegramUserToCaller(ctx.from));
+    }
     await ctx.reply(
       [
         '<b>9ja Checkr</b>',

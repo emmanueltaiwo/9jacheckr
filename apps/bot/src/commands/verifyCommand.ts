@@ -1,5 +1,5 @@
 import type { Telegraf } from 'telegraf';
-import { verifyNafdac } from '../services/apiClient.js';
+import { telegramUserToCaller, verifyNafdac } from '../services/apiClient.js';
 import {
   formatErrorMessage,
   formatNotFoundMessage,
@@ -49,7 +49,8 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
     logger.info('verify pending value received', { chatId, nafdac });
     await ctx.reply('Checking NAFDAC registry…');
 
-    const res = await verifyNafdac(apiBaseUrl, nafdac);
+    const caller = ctx.from ? telegramUserToCaller(ctx.from) : undefined;
+    const res = await verifyNafdac(apiBaseUrl, nafdac, caller);
     if (res.ok) {
       logger.info('verify API success', { nafdac });
       await ctx.reply(formatVerifyReply(res.product), {
@@ -103,7 +104,8 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
     await ctx.reply('Checking NAFDAC registry…');
 
     try {
-      const res = await verifyNafdac(apiBaseUrl, arg);
+      const caller = ctx.from ? telegramUserToCaller(ctx.from) : undefined;
+      const res = await verifyNafdac(apiBaseUrl, arg, caller);
       if (res.ok) {
         logger.info('verify API success', { nafdac: arg });
         await ctx.reply(formatVerifyReply(res.product), {

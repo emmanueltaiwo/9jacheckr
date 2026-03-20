@@ -14,7 +14,7 @@ const fetchOptions = {
     type: 'Bearer' as const,
     token: () =>
       typeof window !== 'undefined'
-        ? localStorage.getItem(SESSION_BEARER_STORAGE_KEY) ?? ''
+        ? (localStorage.getItem(SESSION_BEARER_STORAGE_KEY) ?? '')
         : '',
   },
 };

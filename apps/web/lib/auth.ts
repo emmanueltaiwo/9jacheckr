@@ -18,7 +18,8 @@ export async function getAuth(): Promise<AppAuth> {
 
 async function createAuth(): Promise<AppAuth> {
   const MONGODB_URI = process.env.MONGODB_URI ?? '';
-  const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
+  const BETTER_AUTH_URL =
+    process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
   const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET ?? '';
 
   if (!MONGODB_URI) {

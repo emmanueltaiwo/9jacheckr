@@ -13,14 +13,14 @@ The **Express API** (`NEXT_PUBLIC_API_BASE_URL`) serves verify, keys, and metric
 
 Use `apps/web/.env.local`.
 
-| Variable                                    | Purpose                                                                                             |
-| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `MONGODB_URI`                               | Same DB as the API (Better Auth)                                                                  |
-| `BETTER_AUTH_URL`                           | Public URL of this app (e.g. `http://localhost:3000`)                                               |
-| `BETTER_AUTH_SECRET`                        | Strong secret for Better Auth                                                                       |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth; redirect `…/api/auth/callback/google` on this origin                                         |
+| Variable                                    | Purpose                                                                                              |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`                               | Same DB as the API (Better Auth)                                                                     |
+| `BETTER_AUTH_URL`                           | Public URL of this app (e.g. `http://localhost:3000`)                                                |
+| `BETTER_AUTH_SECRET`                        | Strong secret for Better Auth                                                                        |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | OAuth; redirect `…/api/auth/callback/google` on this origin                                          |
 | `NEXT_PUBLIC_API_BASE_URL`                  | **Required for dashboard API calls.** Express base, e.g. `http://localhost:4000` (no trailing slash) |
-| `NEXT_PUBLIC_BETTER_AUTH_URL`               | Usually same as `BETTER_AUTH_URL`                                                                   |
+| `NEXT_PUBLIC_BETTER_AUTH_URL`               | Usually same as `BETTER_AUTH_URL`                                                                    |
 
 ## Scripts
 

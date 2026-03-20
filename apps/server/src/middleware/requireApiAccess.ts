@@ -7,7 +7,11 @@ export async function requireApiAccess(
   next: NextFunction,
 ) {
   const path = (req.originalUrl ?? req.url ?? '').split('?')[0];
-  if (path.startsWith('/api/keys') || path.startsWith('/api/metrics')) {
+  if (
+    path.startsWith('/api/keys') ||
+    path.startsWith('/api/metrics') ||
+    path.startsWith('/api/bot')
+  ) {
     next();
     return;
   }
@@ -16,6 +20,15 @@ export async function requireApiAccess(
   const expected = process.env.BOT_INTERNAL_TOKEN ?? '';
   if (expected && internalToken === expected) {
     req.authContext = { source: 'bot' };
+    const tid = req.header('x-telegram-user-id')?.trim();
+    if (tid) {
+      req.botTelegram = {
+        id: tid,
+        username: req.header('x-telegram-username')?.trim() || undefined,
+        firstName: req.header('x-telegram-first-name')?.trim() || undefined,
+        lastName: req.header('x-telegram-last-name')?.trim() || undefined,
+      };
+    }
     next();
     return;
   }
