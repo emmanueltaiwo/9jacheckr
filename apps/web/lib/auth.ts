@@ -30,9 +30,6 @@ async function createAuth(): Promise<AppAuth> {
   const mongoClient = await getMongoClient(MONGODB_URI);
   const db = mongoClient.db();
 
-  const mongoUseTransactions =
-    process.env.BETTER_AUTH_MONGO_TRANSACTIONS === 'true';
-
   const apiOrigin =
     process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
@@ -40,10 +37,7 @@ async function createAuth(): Promise<AppAuth> {
     baseURL: BETTER_AUTH_URL,
     secret: BETTER_AUTH_SECRET,
     trustedOrigins: [apiOrigin],
-    database: mongodbAdapter(db, {
-      client: mongoClient,
-      transaction: mongoUseTransactions,
-    }),
+    database: mongodbAdapter(db, { client: mongoClient }),
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID ?? '',

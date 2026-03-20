@@ -21,6 +21,8 @@ See repo root [`.env.example`](../../.env.example).
 | `BOT_INTERNAL_TOKEN` | Optional; bot bypass for verify                                     |
 | `PORT`               | Default `4000`                                                      |
 
+Google OAuth runs only on the Next app; the API does not need `GOOGLE_CLIENT_*`.
+
 Legacy keys hashed with plain SHA-256 still verify until rotated.
 
 ## Scripts
