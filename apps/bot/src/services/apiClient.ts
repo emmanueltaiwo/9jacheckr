@@ -23,14 +23,28 @@ export function telegramUserToCaller(from: {
   };
 }
 
+/**
+ * Node's HTTP client only allows TAB or printable ASCII in header values.
+ * Telegram names may include emoji / non-Latin text — encode so headers stay valid.
+ */
+function telegramFieldForHeader(value: string | undefined): string | undefined {
+  if (value == null || value === '') return undefined;
+  const t = value.trim();
+  if (!t) return undefined;
+  return encodeURIComponent(t).slice(0, 1024);
+}
+
 function callerHeaders(caller?: BotCallerInfo): Record<string, string> {
   if (!caller) return {};
   const h: Record<string, string> = {
     'x-telegram-user-id': caller.telegramId,
   };
-  if (caller.username) h['x-telegram-username'] = caller.username;
-  if (caller.firstName) h['x-telegram-first-name'] = caller.firstName;
-  if (caller.lastName) h['x-telegram-last-name'] = caller.lastName;
+  const u = telegramFieldForHeader(caller.username);
+  if (u) h['x-telegram-username'] = u;
+  const fn = telegramFieldForHeader(caller.firstName);
+  if (fn) h['x-telegram-first-name'] = fn;
+  const ln = telegramFieldForHeader(caller.lastName);
+  if (ln) h['x-telegram-last-name'] = ln;
   return h;
 }
 

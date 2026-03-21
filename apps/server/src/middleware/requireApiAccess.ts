@@ -1,6 +1,17 @@
 import type { NextFunction, Request, Response } from 'express';
 import { findApiKeyByRaw } from '../services/apiKeyService.js';
 
+/** Bot sends UTF-8 names as encodeURIComponent (Node rejects non-ASCII in headers). */
+function telegramHeaderDecoded(raw: string | undefined): string | undefined {
+  const v = raw?.trim();
+  if (!v) return undefined;
+  try {
+    return decodeURIComponent(v);
+  } catch {
+    return v;
+  }
+}
+
 export async function requireApiAccess(
   req: Request,
   res: Response,
@@ -26,9 +37,9 @@ export async function requireApiAccess(
     if (tid) {
       req.botTelegram = {
         id: tid,
-        username: req.header('x-telegram-username')?.trim() || undefined,
-        firstName: req.header('x-telegram-first-name')?.trim() || undefined,
-        lastName: req.header('x-telegram-last-name')?.trim() || undefined,
+        username: telegramHeaderDecoded(req.header('x-telegram-username')),
+        firstName: telegramHeaderDecoded(req.header('x-telegram-first-name')),
+        lastName: telegramHeaderDecoded(req.header('x-telegram-last-name')),
       };
     }
     next();
