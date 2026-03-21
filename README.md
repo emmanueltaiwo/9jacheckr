@@ -55,14 +55,14 @@ If the key is **rotated or revoked**, old keys stop working immediately (`INVALI
 
 ### 2. Base URL
 
-**Production:** `https://api.9jacheckr.com`
+**Production:** `https://api.9jacheckr.xyz`
 
 Use **HTTPS**. All API paths are under `/api/...`.
 
 ### 3. Make a verify request
 
 **Method:** `GET`  
-**URL:** `https://api.9jacheckr.com/api/verify/{nafdac}`
+**URL:** `https://api.9jacheckr.xyz/api/verify/{nafdac}`
 
 Replace `{nafdac}` with the number from the product label (e.g. `01-5713`). If the value has spaces or odd characters, **URL-encode** it (e.g. `encodeURIComponent` in JavaScript).
 
@@ -133,14 +133,14 @@ If you **self-host** the API, these numbers come from [`apps/server/src/middlewa
 **cURL**
 
 ```bash
-curl -sS "https://api.9jacheckr.com/api/verify/01-5713" \
+curl -sS "https://api.9jacheckr.xyz/api/verify/01-5713" \
   -H "x-api-key: YOUR_API_KEY_HERE"
 ```
 
 **JavaScript (fetch)**
 
 ```js
-const res = await fetch('https://api.9jacheckr.com/api/verify/01-5713', {
+const res = await fetch('https://api.9jacheckr.xyz/api/verify/01-5713', {
   headers: { 'x-api-key': process.env.CHECKR_API_KEY },
 });
 const data = await res.json();
@@ -150,6 +150,8 @@ if (data.ok) {
   console.error(data.code, data.message);
 }
 ```
+
+**Node.js (`@9jacheckr/sdk`)** — see [`packages/sdk/README.md`](packages/sdk/README.md).
 
 **From a browser:** your site’s origin must be allowed for CORS (we allow the official web app origin). For **server-side** or **mobile** apps, call the API directly with the key as above.
 

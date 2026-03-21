@@ -6,7 +6,7 @@ export function CurlCard({ apiBaseUrl }: { apiBaseUrl: string }) {
   const base = apiBaseUrl.replace(/\/$/, '');
   const url = base
     ? `${base}/api/verify/01-5713`
-    : 'https://api.9jacheckr.com/api/verify/01-5713';
+    : 'https://api.9jacheckr.xyz/api/verify/01-5713';
   const snippet = `curl -sS "${url}" \\\n  -H "x-api-key: YOUR_KEY_HERE"`;
 
   return (

@@ -92,7 +92,7 @@ function TerminalPreview() {
           <div className="min-w-0 wrap-break-word">
             <span style={{ color: 'var(--syn-punct)' }}>curl </span>
             <span style={{ color: 'var(--syn-str)' }}>
-              &quot;api.9jacheckr.com/api/verify/01-5713&quot;
+              &quot;api.9jacheckr.xyz/api/verify/01-5713&quot;
             </span>
             <span style={{ color: 'var(--syn-punct)' }}> \</span>
             <br />
@@ -293,7 +293,7 @@ export default async function Home() {
 
   const curlSample = apiBase
     ? `curl -sS "${apiBase}/api/verify/01-5713" \\\n  -H "x-api-key: njc_your_key_here"`
-    : `curl -sS "https://api.9jacheckr.com/api/verify/01-5713" \\\n  -H "x-api-key: njc_your_key_here"`;
+    : `curl -sS "https://api.9jacheckr.xyz/api/verify/01-5713" \\\n  -H "x-api-key: njc_your_key_here"`;
 
   const jsonSample = `{
   "ok": true,
