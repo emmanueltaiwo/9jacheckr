@@ -6,17 +6,12 @@ function hashUtf8(s: string): Buffer {
   return createHash('sha256').update(s, 'utf8').digest();
 }
 
-/** Constant-time compare without leaking expected length via early exit. */
 function constantTimeEqualStrings(a: string, b: string): boolean {
   const ha = hashUtf8(a);
   const hb = hashUtf8(b);
   return timingSafeEqual(ha, hb);
 }
 
-/**
- * Shared secret between the web app (server-side BFF) and this API only.
- * Never send to the browser or prefix with NEXT_PUBLIC_.
- */
 export function requireWebVerifyInternal(
   req: Request,
   res: Response,

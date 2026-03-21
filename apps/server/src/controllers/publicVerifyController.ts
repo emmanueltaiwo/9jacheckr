@@ -3,11 +3,6 @@ import type { VerifyApiErrorBody, VerifyApiSuccess } from '../types/types.js';
 import { getOrFetchProduct } from '../services/verifyService.js';
 import { logger } from '../utils/logger.js';
 
-/**
- * Verify for the marketing site, gated by WEB_VERIFY_INTERNAL_SECRET (BFF only).
- * Browsers call Next.js `/api/verify-lookup`; this route is not for direct clients.
- * Does not increment API-key usage metrics.
- */
 export async function publicVerifyController(
   req: Request,
   res: Response,
