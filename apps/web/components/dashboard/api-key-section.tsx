@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { clsx } from 'clsx';
 import { CopyFieldButton } from './copy-field-button';
 
 type ApiKeyInfo = {
@@ -231,16 +232,40 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             background: 'var(--bg-subtle)',
           }}
         >
-          <h3 className="text-[14px] font-semibold text-foreground">
-            Verify usage
-          </h3>
-          <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-3)' }}>
-            Counts for{' '}
-            <code className="font-mono text-[11px] text-(--text-3)">
-              GET /api/verify/:nafdac
-            </code>{' '}
-            with your API key.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[14px] font-semibold text-foreground">
+                Verify usage
+              </h3>
+              <p
+                className="mt-0.5 text-[12px]"
+                style={{ color: 'var(--text-3)' }}
+              >
+                Counts for{' '}
+                <code className="font-mono text-[11px] text-(--text-3)">
+                  GET /api/verify/:nafdac
+                </code>{' '}
+                with your API key.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void metricsQuery.refetch()}
+              disabled={metricsQuery.isFetching}
+              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-3 text-[12px] font-medium transition-colors disabled:opacity-50 focus-visible-ring"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
+              aria-label="Refresh usage metrics"
+            >
+              <RefreshCw
+                className={clsx(
+                  'h-3.5 w-3.5',
+                  metricsQuery.isFetching && 'animate-spin',
+                )}
+                aria-hidden
+              />
+              Refresh
+            </button>
+          </div>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatBox
               label="Total"
@@ -269,6 +294,41 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
               : 'No verify requests yet'}
           </p>
         </div>
+      ) : metricsQuery.isError ? (
+        <div
+          className="rounded-xl border px-5 py-4"
+          style={{
+            borderColor: 'var(--border)',
+            background: 'var(--bg-subtle)',
+          }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-2 text-[13px] text-amber-200/90">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <span>
+                {metricsQuery.error instanceof Error
+                  ? metricsQuery.error.message
+                  : 'Could not load usage metrics.'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => void metricsQuery.refetch()}
+              disabled={metricsQuery.isFetching}
+              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-amber-400/35 px-3 text-[12px] font-medium text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50 focus-visible-ring"
+              aria-label="Retry loading usage metrics"
+            >
+              <RefreshCw
+                className={clsx(
+                  'h-3.5 w-3.5',
+                  metricsQuery.isFetching && 'animate-spin',
+                )}
+                aria-hidden
+              />
+              Retry
+            </button>
+          </div>
+        </div>
       ) : metricsQuery.isPending ? (
         <div
           className="rounded-xl border p-5"
@@ -277,7 +337,10 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             background: 'var(--bg-subtle)',
           }}
         >
-          <div className="skeleton mb-4 h-4 w-32 rounded" />
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="skeleton h-4 w-32 rounded" />
+            <div className="skeleton h-8 w-24 shrink-0 rounded-md" />
+          </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="skeleton h-14 rounded-lg" />
