@@ -12,6 +12,8 @@ import { LandingHeroActions } from '@/components/landing-hero-actions';
 import { LandingFooterCta } from '@/components/landing-footer-cta';
 import { LandingCodeTabs } from '@/components/landing-code-tabs';
 
+const SUPPORT_PAYSTACK_URL = 'https://paystack.shop/pay/support9jacheckr';
+
 const CODES = [
   'A4-8921',
   '01-5713',
@@ -357,7 +359,7 @@ export default async function Home() {
             </p>
 
             <div className="anim anim-d3 mt-8">
-              <LandingHeroActions />
+              <LandingHeroActions supportHref={SUPPORT_PAYSTACK_URL} />
             </div>
 
             <p
@@ -715,6 +717,15 @@ export default async function Home() {
                 style={{ color: 'var(--text-3)' }}
               >
                 Telegram bot
+              </a>
+              <a
+                href={SUPPORT_PAYSTACK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block transition-colors hover:text-foreground"
+                style={{ color: 'var(--text-3)' }}
+              >
+                Support the project
               </a>
             </div>
           </div>
