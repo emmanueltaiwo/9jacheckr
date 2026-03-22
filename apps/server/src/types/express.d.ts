@@ -6,6 +6,7 @@ declare global {
       authContext?: AuthContext;
       authUser?: AuthUser;
       botTelegram?: BotTelegramFromHeaders;
+      apiKeyId?: string;
     }
   }
 }

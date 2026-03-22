@@ -30,6 +30,9 @@ export function SiteNav() {
             <Link href="/verify" className="btn-ghost">
               Verify
             </Link>
+            <Link href="/#pricing" className="btn-ghost">
+              Pricing
+            </Link>
             <Link href="/#api" className="btn-ghost">
               API
             </Link>

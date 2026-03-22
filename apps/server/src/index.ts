@@ -8,11 +8,13 @@ import verifyNafdacRouter from './routes/verifyNafdacRouter.js';
 import { botRouter } from './routes/botRouter.js';
 import apiKeyRouter from './routes/apiKeyRouter.js';
 import publicVerifyRouter from './routes/publicVerifyRouter.js';
+import productSearchRouter from './routes/productSearchRouter.js';
 import { requireApiAccess } from './middleware/requireApiAccess.js';
 import { logger } from './utils/logger.js';
 import { httpLogger } from './middleware/httpLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { apiRateLimiter } from './middleware/rateLimiter.js';
+import { billingWebhookController } from './controllers/billingWebhookController.js';
 
 const PORT = Number(process.env.PORT) || 4000;
 
@@ -34,6 +36,14 @@ async function main() {
   const auth = await getAuth();
   app.all('/api/auth/*splat', toNodeHandler(auth));
 
+  app.post(
+    '/api/billing/webhook',
+    express.raw({ type: 'application/json' }),
+    (req, res, next) => {
+      billingWebhookController(req, res).catch(next);
+    },
+  );
+
   app.use(express.json({ limit: '1mb' }));
   app.use('/api', apiRateLimiter);
 
@@ -43,6 +53,7 @@ async function main() {
 
   app.use('/api', requireApiAccess);
   app.use('/api/verify', verifyNafdacRouter);
+  app.use('/api/products', productSearchRouter);
   app.use('/api/bot', botRouter);
   app.use('/api/keys', apiKeyRouter);
   app.use('/api/public', publicVerifyRouter);

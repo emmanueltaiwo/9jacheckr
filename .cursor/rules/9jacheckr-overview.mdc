@@ -1,0 +1,55 @@
+---
+description: 9ja Checkr monorepo — product context, architecture, env index, API contracts
+alwaysApply: true
+---
+
+# 9ja Checkr — project context
+
+**Product:** NAFDAC registration number lookup → structured product JSON. Public web verify, dashboard + API keys, Telegram bot, npm SDK.
+
+**How verify works:** No NAFDAC official API. Server automates NAFDAC’s **public web form** (POST + session/anti-forgery config), **parses HTML** (`apps/server/src/utils/nafdacRegistrationClient.ts`, `nafdacHtmlParser.ts`). Results are **cached in MongoDB** to reduce NAFDAC hits. If NAFDAC changes HTML, the parser may need updates.
+
+## Monorepo (`npm` workspaces + Turbo)
+
+| Package | Stack | Role |
+|--------|--------|------|
+| `apps/web` | Next.js 16 (App Router), React 19 | Marketing, `/verify`, `/login` (Google), `/dashboard`, BFF routes e.g. `/api/verify-lookup`, `/bot/billing/success` |
+| `apps/server` | Express, MongoDB, Better Auth | API under `/api/*`, Paystack webhooks, bot internal routes |
+| `apps/bot` | Telegraf | `/start`, `/verify`, `/upgrade`, `/status` → server with `BOT_INTERNAL_TOKEN` |
+| `packages/sdk` | `@9jacheckr/sdk` | `verify`, `verifyBatch`, `searchProducts` (Pro features) |
+
+**Run:** `npm install`; `npm run dev -w web|server|bot`. Node ≥ 20.
+
+**Production API base (docs):** `https://api.9jacheckr.xyz` — verify: `GET /api/verify/{nafdac}` + `x-api-key`.
+
+## Auth & access (server)
+
+- **Session:** Better Auth (`/api/auth/*`), Google OAuth; dashboard uses cookies to API on same configured origin.
+- **API keys:** `x-api-key` (prefix `njc_`); plans Free vs **API Pro** (monthly verify quota, rate limits, multiple keys, batch verify, product search).
+- **Bot:** `x-internal-bot-token` + Telegram identity headers; not user API keys.
+- **Web → API verify:** Next `POST /api/verify-lookup` uses `WEB_VERIFY_INTERNAL_SECRET` to call server `/api/public/verify` (not for third-party browser apps).
+
+## Billing (Paystack)
+
+- **API Pro** vs **Bot Pro** (`PAYSTACK_PLAN_API_PRO`, `PAYSTACK_PLAN_BOT_PRO` — plan codes `PLN_…`). Webhook: `POST /api/billing/webhook` (raw body for signature).
+- **`WEB_APP_URL`:** full URL for Paystack callbacks; must match CORS / web origin.
+- **Bot checkout email:** synthetic `bot-tg-{telegramId}@…`; `PAYSTACK_BOT_CHECKOUT_EMAIL_DOMAIN` must be a **real TLD** Paystack accepts (not `.local`).
+
+## Stable API error `code` values (branch on these)
+
+`INVALID_NAFDAC`, `NOT_FOUND`, `MISSING_API_KEY`, `INVALID_API_KEY`, `PLAN_QUOTA_EXCEEDED`, `METRICS_NOT_AVAILABLE`, `FEATURE_REQUIRES_PRO`, `BOT_DAILY_LIMIT`, `KEY_LIMIT`, `RATE_LIMITED`, `INTERNAL_ERROR`, etc. Human `message` may change.
+
+## Bot UX notes
+
+- **Free bot:** up to **5 lookups per UTC day**; **Bot Pro** = no daily cap (subscription via Paystack).
+- **`/status`:** plan, **total lookups (all time)**, **today (UTC)**; Paystack success page tells users to run `/status` after paying.
+- Public bot link (when relevant): `https://t.me/NaijaCheckrBot`
+
+## Where to read more
+
+Root `README.md` (NAFDAC flow, public API doc), `apps/server/README.md`, `apps/web/README.md`, `apps/bot/README.md`, `packages/sdk/README.md`.
+
+## Collaboration (this repo)
+
+- Prefer **small, task-focused diffs**; match existing patterns (imports `.js` suffix in server/bot compiled ESM, Tailwind token classes like `text-(--text-2)` on web).
+- **Run typecheck/tests** for touched packages when practical; don’t only suggest commands — implement and verify in the real environment when the user expects it.

@@ -27,10 +27,16 @@ export function LandingHeroActions({ supportHref }: LandingHeroActionsProps) {
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
         <a
+          href="#pricing"
+          className="btn-secondary h-[42px] px-5 text-[14px] focus-visible-ring"
+        >
+          See pricing
+        </a>
+        <a
           href="#api"
           className="btn-secondary h-[42px] px-5 text-[14px] focus-visible-ring"
         >
-          View API reference
+          API reference
         </a>
       </div>
       {supportHref ? (

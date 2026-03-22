@@ -70,6 +70,7 @@ export async function requireApiAccess(
   await key.save();
 
   req.authContext = { source: 'api_key', userId: key.userId };
+  req.apiKeyId = String(key._id);
 
   next();
 }

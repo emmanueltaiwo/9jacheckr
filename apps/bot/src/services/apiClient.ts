@@ -129,3 +129,124 @@ export async function verifyNafdac(
     };
   }
 }
+
+type BotCheckoutJson =
+  | { ok: true; authorizationUrl: string }
+  | { ok: false; code?: string; message?: string };
+
+export async function initializeBotProCheckout(
+  baseUrl: string,
+  telegramId: string,
+): Promise<
+  { ok: true; authorizationUrl: string } | { ok: false; message: string }
+> {
+  const root = baseUrl.replace(/\/$/, '');
+  try {
+    const res = await axios.post<BotCheckoutJson>(
+      `${root}/api/bot/billing/initialize-bot-pro`,
+      { telegramId },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-bot-token': process.env.BOT_INTERNAL_TOKEN ?? '',
+        },
+        timeout: 15_000,
+        validateStatus: () => true,
+      },
+    );
+    const data = res.data;
+    if (data && typeof data === 'object' && data.ok && data.authorizationUrl) {
+      return { ok: true, authorizationUrl: data.authorizationUrl };
+    }
+    const msg =
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message?: string }).message)
+        : 'Checkout unavailable.';
+    return { ok: false, message: msg };
+  } catch {
+    return { ok: false, message: 'Could not reach billing service.' };
+  }
+}
+
+export type BotStatusResponse =
+  | {
+      ok: true;
+      plan: 'free' | 'pro_bot';
+      dailyUsed: number;
+      dailyLimit: number;
+      periodEnd: string | null;
+      totalVerifyCount: number;
+    }
+  | { ok: false; message?: string };
+
+export async function fetchBotStatus(
+  baseUrl: string,
+  telegramId: string,
+): Promise<BotStatusResponse> {
+  const root = baseUrl.replace(/\/$/, '');
+  try {
+    const res = await axios.post<unknown>(
+      `${root}/api/bot/status`,
+      { telegramId },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-bot-token': process.env.BOT_INTERNAL_TOKEN ?? '',
+        },
+        timeout: 10_000,
+        validateStatus: () => true,
+      },
+    );
+    const data = res.data;
+    if (
+      data &&
+      typeof data === 'object' &&
+      'ok' in data &&
+      (data as { ok?: boolean }).ok === true &&
+      'plan' in data
+    ) {
+      const d = data as unknown as {
+        plan: string;
+        dailyUsed: unknown;
+        dailyLimit: unknown;
+        periodEnd: unknown;
+        totalVerifyCount: unknown;
+      };
+      const plan = d.plan === 'pro_bot' ? 'pro_bot' : 'free';
+      const dailyUsed =
+        typeof d.dailyUsed === 'number' && Number.isFinite(d.dailyUsed)
+          ? d.dailyUsed
+          : 0;
+      const dailyLimit =
+        typeof d.dailyLimit === 'number' && Number.isFinite(d.dailyLimit)
+          ? d.dailyLimit
+          : 5;
+      const periodEnd =
+        d.periodEnd === null
+          ? null
+          : typeof d.periodEnd === 'string'
+            ? d.periodEnd
+            : null;
+      const totalVerifyCount =
+        typeof d.totalVerifyCount === 'number' &&
+        Number.isFinite(d.totalVerifyCount)
+          ? d.totalVerifyCount
+          : 0;
+      return {
+        ok: true,
+        plan,
+        dailyUsed,
+        dailyLimit,
+        periodEnd,
+        totalVerifyCount,
+      };
+    }
+    const msg =
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message?: string }).message)
+        : 'Status unavailable.';
+    return { ok: false, message: msg };
+  } catch {
+    return { ok: false, message: 'Could not reach the server.' };
+  }
+}

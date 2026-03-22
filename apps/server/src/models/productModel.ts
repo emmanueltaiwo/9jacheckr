@@ -20,5 +20,29 @@ const productSchema = new Schema(
   { timestamps: true },
 );
 
+/** One text index per collection: all customer-visible fields + ingredients (array strings). */
+productSchema.index(
+  {
+    nafdac: 'text',
+    name: 'text',
+    category: 'text',
+    source: 'text',
+    manufacturer: 'text',
+    ingredients: 'text',
+  },
+  {
+    name: 'product_fulltext_v2',
+    default_language: 'none',
+    weights: {
+      name: 10,
+      nafdac: 10,
+      manufacturer: 8,
+      category: 6,
+      ingredients: 6,
+      source: 4,
+    },
+  },
+);
+
 export const ProductModel =
   mongoose.models.Product ?? mongoose.model('Product', productSchema);

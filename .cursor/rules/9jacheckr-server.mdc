@@ -1,0 +1,33 @@
+---
+description: Express API — routes, middleware, Mongo models, billing, bot internals
+globs: apps/server/**/*.ts
+alwaysApply: false
+---
+
+# Server (`apps/server`)
+
+## Layout
+
+- **Entry:** `src/index.ts` — CORS (`WEB_APP_URL`), Better Auth `toNodeHandler`, `express.json`, global `/api` rate limiter, `requireApiAccess`, routers mounted under `/api/verify`, `/api/products`, `/api/bot`, `/api/keys`, `/api/public`.
+- **Billing webhook** registered **before** `express.json` with `express.raw` for Paystack signature verification.
+
+## Middleware chain
+
+- `requireApiAccess` resolves **session**, **API key**, or **bot** context; downstream controllers read `req.authContext`, `req.botTelegram`, etc.
+- Plan/quota: `apiPlanService`, `monthlyApiQuotaService`, `verifyPlanRateLimiter`; bot: `botPlanService` (`resolveBotPlan`, daily quota, `getBotStatusSnapshot`, `incrementBotDailyVerify` counts all bot lookups per UTC day; quota enforcement remains free-only).
+
+## Key files
+
+- Verify: `controllers/verifyNafdacController.ts`, `services/verifyService.ts`, `routes/verifyNafdacRouter.ts`
+- Bot: `routes/botRouter.ts` (`/activity`, `/status`, `/billing/initialize-bot-pro`) + `requireBotInternalToken`
+- Keys / dashboard API: `routes/apiKeyRouter.ts`, usage controllers
+- Types: `src/types/types.ts` (`VerifyApiSuccess`, `ProductPlain`, …)
+
+## Mongo
+
+Mongoose models in `src/models/*`. Index note: legacy `apikeys.userId_1` dropped on connect for multi-key Pro — see server README if `syncIndexes` fails.
+
+## Conventions
+
+- TypeScript **ESM**; import paths use **`.js` extension** in source.
+- Use existing `logger` for operational logs; return JSON bodies with `ok`, `code`, `message` for API errors consistent with `types.ts`.

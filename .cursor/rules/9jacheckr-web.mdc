@@ -1,0 +1,28 @@
+---
+description: Next.js app — App Router, dashboard, verify BFF, styling tokens
+globs: apps/web/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Web (`apps/web`)
+
+## Stack
+
+- **Next.js 16** (Turbopack in dev), **React 19**, Tailwind 4, `better-auth` client for session.
+- **App Router** under `app/` — e.g. `/`, `/verify`, `/login`, `/dashboard/*`, `/bot/billing/success`.
+
+## Env (see `apps/web/README.md`)
+
+- `NEXT_PUBLIC_API_BASE_URL` — browser + server API origin (no trailing slash).
+- **`WEB_VERIFY_INTERNAL_SECRET`** — server-only; never `NEXT_PUBLIC_*`. Must match API server.
+- `WEB_APP_URL` — canonical site URL in production (verify-lookup origin checks).
+- Optional `API_BASE_URL` for server-side routes calling the API.
+
+## UI
+
+- Reuse **`SiteNav`**, existing spacing/typography, and design tokens (CSS variables + Tailwind arbitrary props like `border-(--border)`, `text-(--text-2)`).
+- Dashboard shell, API key UI, settings/billing live under `components/dashboard/`.
+
+## Patterns
+
+- Public verify flow may use client components + server actions or route handlers; **`/api/verify-lookup`** proxies to backend with the internal secret — do not expose that secret to the client.

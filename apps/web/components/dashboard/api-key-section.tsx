@@ -1,19 +1,45 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useState } from 'react';
-import { AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  CreditCard,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react';
 import { clsx } from 'clsx';
 import { CopyFieldButton } from './copy-field-button';
+import {
+  apiBillingQueryKey,
+  fetchApiBillingStatus,
+} from '@/lib/api-billing-query';
 
-type ApiKeyInfo = {
+type ApiKeyRow = {
+  id: string;
   keyPrefix: string;
+  label: string;
+  isPrimary?: boolean;
   lastUsedAt: string | null;
   createdAt: string;
 };
 
-type MeJson = { ok: boolean; apiKey: ApiKeyInfo | null };
-type CreateJson = { ok: boolean; rawKey: string; apiKey: ApiKeyInfo };
+type MeJson = { ok: boolean; apiKey: ApiKeyRow | null; keys: ApiKeyRow[] };
+type CreateJson = {
+  ok: boolean;
+  rawKey: string;
+  apiKey: ApiKeyRow;
+  keys: ApiKeyRow[];
+};
+
+type PatchLabelJson = {
+  ok: boolean;
+  apiKey: ApiKeyRow | null;
+  keys: ApiKeyRow[];
+};
 type RevokeJson = { ok: boolean; revokedAt: string | null };
 
 type UsageMetrics = {
@@ -24,36 +50,62 @@ type UsageMetrics = {
   lastVerifyAt: string | null;
 };
 
-type MetricsJson = { ok: boolean; metrics: UsageMetrics };
+type MetricsJson = { ok: boolean; metrics?: UsageMetrics; code?: string };
 
-async function fetchApiKeyMe(base: string): Promise<ApiKeyInfo | null> {
+type MetricsFetchResult =
+  | { kind: 'ok'; metrics: UsageMetrics }
+  | { kind: 'locked' }
+  | { kind: 'error'; message: string };
+
+async function fetchApiKeyMe(base: string): Promise<{
+  apiKey: ApiKeyRow | null;
+  keys: ApiKeyRow[];
+}> {
   const res = await fetch(`${base}/api/keys/me`, { credentials: 'include' });
   const data = (await res.json()) as MeJson;
   if (!res.ok || !data.ok) {
     throw new Error('Could not load key status.');
   }
-  return data.apiKey;
+  return { apiKey: data.apiKey, keys: data.keys ?? [] };
 }
 
-async function fetchApiKeyMetrics(base: string): Promise<UsageMetrics> {
+async function fetchApiKeyMetrics(base: string): Promise<MetricsFetchResult> {
   const res = await fetch(`${base}/api/keys/metrics`, {
     credentials: 'include',
   });
   const data = (await res.json()) as MetricsJson;
-  if (!res.ok || !data.ok || !data.metrics) {
-    throw new Error('Could not load usage metrics.');
+  if (res.status === 403 && data?.code === 'METRICS_NOT_AVAILABLE') {
+    return { kind: 'locked' };
   }
-  return data.metrics;
+  if (!res.ok || !data.ok || !data.metrics) {
+    return {
+      kind: 'error',
+      message:
+        typeof data === 'object' && data && 'message' in data
+          ? String((data as { message?: string }).message)
+          : 'Could not load usage metrics.',
+    };
+  }
+  return { kind: 'ok', metrics: data.metrics };
 }
 
 export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
   const base = apiBaseUrl.replace(/\/$/, '');
   const queryClient = useQueryClient();
   const [rawKey, setRawKey] = useState<string | null>(null);
+  const [editingKeyId, setEditingKeyId] = useState<string | null>(null);
+  const [labelDraft, setLabelDraft] = useState('');
 
   const keyQuery = useQuery({
     queryKey: ['api-keys', 'me', base],
     queryFn: () => fetchApiKeyMe(base),
+    enabled: Boolean(base),
+    staleTime: 60 * 1000,
+  });
+
+  const billingQuery = useQuery({
+    queryKey: apiBillingQueryKey(base),
+    queryFn: () => fetchApiBillingStatus(base),
     enabled: Boolean(base),
     staleTime: 60 * 1000,
   });
@@ -65,17 +117,47 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
     staleTime: 60 * 1000,
   });
 
-  const createMutation = useMutation({
+  const upgradeMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`${base}/api/keys/create`, {
+      const res = await fetch(`${base}/api/keys/billing/initialize-pro`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: '{}',
       });
-      const data = (await res.json()) as CreateJson;
+      const data = (await res.json()) as {
+        ok?: boolean;
+        authorizationUrl?: string;
+        message?: string;
+      };
+      if (!res.ok || !data.ok || !data.authorizationUrl) {
+        throw new Error(data.message ?? 'Could not start checkout.');
+      }
+      return data.authorizationUrl;
+    },
+    onSuccess: (url) => {
+      window.location.assign(url);
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (body: {
+      additional?: boolean;
+      rotateKeyId?: string;
+      label?: string;
+    }) => {
+      const res = await fetch(`${base}/api/keys/create`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = (await res.json()) as CreateJson & {
+        code?: string;
+        message?: string;
+      };
       if (!res.ok || !data.ok) {
-        throw new Error('Could not create or rotate key.');
+        throw new Error(data.message ?? 'Could not create or rotate key.');
       }
       return data;
     },
@@ -84,12 +166,15 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
     },
     onSuccess: (data) => {
       setRawKey(data.rawKey);
-      queryClient.setQueryData<ApiKeyInfo | null>(
-        ['api-keys', 'me', base],
-        data.apiKey,
-      );
+      queryClient.setQueryData(['api-keys', 'me', base], {
+        apiKey: data.apiKey,
+        keys: data.keys,
+      });
       void queryClient.invalidateQueries({
         queryKey: ['api-keys', 'metrics', base],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: apiBillingQueryKey(base),
       });
     },
   });
@@ -105,7 +190,7 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
       }
       const data = (await res.json()) as RevokeJson;
       if (!res.ok) {
-        throw new Error('Could not revoke key.');
+        throw new Error('Could not revoke keys.');
       }
       return data;
     },
@@ -113,21 +198,88 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
       setRawKey(null);
     },
     onSuccess: () => {
-      queryClient.setQueryData<ApiKeyInfo | null>(
-        ['api-keys', 'me', base],
-        null,
-      );
+      queryClient.setQueryData(['api-keys', 'me', base], {
+        apiKey: null,
+        keys: [],
+      });
       void queryClient.invalidateQueries({
         queryKey: ['api-keys', 'metrics', base],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: apiBillingQueryKey(base),
       });
     },
   });
 
-  const busy = createMutation.isPending || revokeMutation.isPending;
-  const info = keyQuery.data;
-  const metrics = metricsQuery.data;
+  const labelMutation = useMutation({
+    mutationFn: async ({ keyId, label }: { keyId: string; label: string }) => {
+      const res = await fetch(
+        `${base}/api/keys/key/${encodeURIComponent(keyId)}/label`,
+        {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label }),
+        },
+      );
+      const data = (await res.json()) as PatchLabelJson & {
+        code?: string;
+        message?: string;
+      };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message ?? 'Could not update label.');
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      setEditingKeyId(null);
+      queryClient.setQueryData(['api-keys', 'me', base], {
+        apiKey: data.apiKey ?? data.keys[0] ?? null,
+        keys: data.keys,
+      });
+    },
+  });
+
+  const revokeOneMutation = useMutation({
+    mutationFn: async (keyId: string) => {
+      const res = await fetch(`${base}/api/keys/key/${encodeURIComponent(keyId)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = (await res.json()) as { ok?: boolean; message?: string };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message ?? 'Could not revoke key.');
+      }
+    },
+    onSuccess: () => {
+      setRawKey(null);
+      void keyQuery.refetch();
+      void queryClient.invalidateQueries({
+        queryKey: ['api-keys', 'metrics', base],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: apiBillingQueryKey(base),
+      });
+    },
+  });
+
+  const busy =
+    createMutation.isPending ||
+    revokeMutation.isPending ||
+    revokeOneMutation.isPending ||
+    upgradeMutation.isPending ||
+    labelMutation.isPending;
+  const keys = keyQuery.data?.keys ?? [];
+  const billing = billingQuery.data;
+  const isPro = billing?.plan === 'pro_api';
+  const metricsResult = metricsQuery.data;
   const mutationError =
-    createMutation.error?.message ?? revokeMutation.error?.message ?? null;
+    createMutation.error?.message ??
+    revokeMutation.error?.message ??
+    revokeOneMutation.error?.message ??
+    upgradeMutation.error?.message ??
+    labelMutation.error?.message ??
+    null;
   const msg = mutationError;
 
   if (!base) {
@@ -234,7 +386,126 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
 
   return (
     <div className="space-y-4">
-      {metricsQuery.isSuccess && metrics ? (
+      {billingQuery.isSuccess && billing ? (
+        <div
+          className="rounded-xl border px-5 py-4"
+          style={{
+            borderColor: 'var(--border)',
+            background: 'var(--bg-subtle)',
+          }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[14px] font-semibold text-foreground">
+                Plan &amp; monthly quota
+              </h3>
+              <p
+                className="mt-0.5 text-[12px]"
+                style={{ color: 'var(--text-3)' }}
+              >
+                {isPro ? (
+                  <>
+                    <span className="font-medium text-foreground">API Pro</span>
+                    {' — '}
+                    successful verifies this month count toward your cap.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium text-foreground">Free</span>
+                    {' — '}
+                    upgrade for higher limits, metrics, and multiple keys.
+                  </>
+                )}
+              </p>
+              <p
+                className="mt-2 font-display text-[1.25rem] font-semibold tabular-nums tracking-tight text-foreground"
+              >
+                {billing.monthlyUsed.toLocaleString()}
+                <span style={{ color: 'var(--text-3)' }}>
+                  {' '}
+                  / {billing.monthlyLimit.toLocaleString()}
+                </span>
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void billingQuery.refetch()}
+                disabled={billingQuery.isFetching}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:bg-(--bg-raised) disabled:opacity-50 focus-visible-ring"
+                aria-label="Refresh plan and quota"
+              >
+                <RefreshCw
+                  className={clsx(
+                    'h-3.5 w-3.5',
+                    billingQuery.isFetching && 'animate-spin',
+                  )}
+                  aria-hidden
+                />
+                Refresh
+              </button>
+              {!isPro ? (
+                <button
+                  type="button"
+                  disabled={upgradeMutation.isPending}
+                  onClick={() => upgradeMutation.mutate()}
+                  className="inline-flex h-9 items-center gap-2 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:bg-(--bg-raised) disabled:opacity-50 focus-visible-ring"
+                >
+                  <CreditCard className="h-3.5 w-3.5" aria-hidden />
+                  Upgrade to Pro
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <p className="mt-3 border-t border-(--border-subtle) pt-3 text-[12px] text-(--text-3)">
+            <Link
+              href="/dashboard/settings"
+              className="font-medium text-(--accent) underline-offset-2 hover:underline"
+            >
+              Billing &amp; payments
+            </Link>
+            {' — '}cancel subscription, update card, history.
+          </p>
+        </div>
+      ) : billingQuery.isError ? (
+        <div
+          className="rounded-xl border px-5 py-4 text-[13px]"
+          style={{
+            borderColor: 'var(--callout-warning-border)',
+            background: 'var(--callout-warning-bg)',
+            color: 'var(--callout-warning-fg)',
+          }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>
+              {billingQuery.error instanceof Error
+                ? billingQuery.error.message
+                : 'Could not load billing.'}
+            </span>
+            <button
+              type="button"
+              onClick={() => void billingQuery.refetch()}
+              disabled={billingQuery.isFetching}
+              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-3 text-[12px] font-medium transition-colors disabled:opacity-50 focus-visible-ring"
+              style={{
+                borderColor: 'var(--callout-warning-btn-border)',
+                color: 'var(--callout-warning-btn-fg)',
+              }}
+            >
+              <RefreshCw
+                className={clsx(
+                  'h-3.5 w-3.5',
+                  billingQuery.isFetching && 'animate-spin',
+                )}
+                aria-hidden
+              />
+              Retry
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {metricsResult?.kind === 'ok' ? (
         <div
           className="rounded-xl border px-5 py-4"
           style={{
@@ -279,32 +550,58 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatBox
               label="Total"
-              value={metrics.totalVerifications}
+              value={metricsResult.metrics.totalVerifications}
               accent="var(--text)"
             />
             <StatBox
               label="Found"
-              value={metrics.foundCount}
+              value={metricsResult.metrics.foundCount}
               accent="var(--stat-found)"
             />
             <StatBox
               label="Not found"
-              value={metrics.notFoundCount}
+              value={metricsResult.metrics.notFoundCount}
               accent="var(--stat-not-found)"
             />
             <StatBox
               label="Errors"
-              value={metrics.errorCount}
+              value={metricsResult.metrics.errorCount}
               accent="var(--stat-errors)"
             />
           </div>
           <p className="mt-3 text-[12px]" style={{ color: 'var(--text-3)' }}>
-            {metrics.lastVerifyAt
-              ? `Last verify ${fmtDate(metrics.lastVerifyAt)}`
+            {metricsResult.metrics.lastVerifyAt
+              ? `Last verify ${fmtDate(metricsResult.metrics.lastVerifyAt)}`
               : 'No verify requests yet'}
           </p>
         </div>
-      ) : metricsQuery.isError ? (
+      ) : metricsResult?.kind === 'locked' ? (
+        <div
+          className="rounded-xl border px-5 py-4"
+          style={{
+            borderColor: 'var(--border)',
+            background: 'var(--bg-subtle)',
+          }}
+        >
+          <h3 className="text-[14px] font-semibold text-foreground">
+            Detailed metrics
+          </h3>
+          <p className="mt-1 text-[13px]" style={{ color: 'var(--text-3)' }}>
+            Dashboard breakdowns are included with API Pro. Your monthly verify
+            count still appears under plan &amp; quota above.
+          </p>
+          {billingQuery.isSuccess && !isPro ? (
+            <button
+              type="button"
+              disabled={upgradeMutation.isPending}
+              onClick={() => upgradeMutation.mutate()}
+              className="btn-primary mt-3 h-8 text-[13px] disabled:opacity-50 focus-visible-ring"
+            >
+              Upgrade to Pro
+            </button>
+          ) : null}
+        </div>
+      ) : metricsResult?.kind === 'error' ? (
         <div
           className="rounded-xl border px-5 py-4"
           style={{
@@ -321,11 +618,7 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
                 className="mt-0.5 h-4 w-4 shrink-0"
                 style={{ color: 'var(--callout-warning-icon)' }}
               />
-              <span>
-                {metricsQuery.error instanceof Error
-                  ? metricsQuery.error.message
-                  : 'Could not load usage metrics.'}
-              </span>
+              <span>{metricsResult.message}</span>
             </div>
             <button
               type="button"
@@ -379,18 +672,21 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
         >
           <div>
             <h3 className="text-[14px] font-semibold text-foreground">
-              {info ? 'Active key' : 'No API key'}
+              API keys
             </h3>
             <p
               className="mt-0.5 text-[12px]"
               style={{ color: 'var(--text-3)' }}
             >
-              Passed as <code className="font-mono">x-api-key</code> on every
-              request. One key per account.
+              Send <code className="font-mono">x-api-key</code> on each
+              request.
+              {isPro
+                ? ' Pro: multiple active keys.'
+                : ' Free: one active key.'}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {info ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {keys.length > 0 ? (
               <button
                 type="button"
                 disabled={busy}
@@ -398,19 +694,39 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
                 className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:border-(--btn-danger-hover-border) hover:bg-(--btn-danger-hover-bg) hover:text-(--btn-danger-hover-fg) disabled:opacity-40 focus-visible-ring"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                Revoke
+                Revoke all
+              </button>
+            ) : null}
+            {isPro && keys.length > 0 ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => createMutation.mutate({ additional: true })}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:bg-(--bg-raised) disabled:opacity-40 focus-visible-ring"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add key
               </button>
             ) : null}
             <button
               type="button"
               disabled={busy}
-              onClick={() => createMutation.mutate()}
+              onClick={() => {
+                if (keys.length === 0) {
+                  createMutation.mutate({});
+                  return;
+                }
+                const primary =
+                  keys.find((k) => k.isPrimary) ?? keys[0] ?? null;
+                if (!primary) return;
+                createMutation.mutate({ rotateKeyId: primary.id });
+              }}
               className="btn-primary h-8 text-[13px] disabled:opacity-50 focus-visible-ring"
             >
-              {info ? (
+              {keys.length > 0 ? (
                 <>
                   <RefreshCw className="h-3.5 w-3.5" />
-                  Rotate
+                  Rotate primary
                 </>
               ) : (
                 'Create key'
@@ -466,56 +782,157 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             </div>
           ) : null}
 
-          {info ? (
-            <div
-              className="rounded-lg border px-4 py-4"
-              style={{
-                borderColor: 'var(--border-subtle)',
-                background: 'var(--bg-raised)',
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>
-                    Key prefix
-                  </p>
-                  <p className="mt-1 font-mono text-[14px]">
-                    <span className="text-foreground">{info.keyPrefix}</span>
-                    <span style={{ color: 'var(--text-3)' }}>
-                      {'•'.repeat(20)}
-                    </span>
-                  </p>
-                </div>
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
+          {keys.length > 0 ? (
+            <ul className="space-y-3">
+              {keys.map((k) => (
+                <li
+                  key={k.id}
+                  className="rounded-lg border px-4 py-4"
                   style={{
-                    borderColor: 'var(--badge-active-border)',
-                    background: 'var(--badge-active-bg)',
-                    color: 'var(--badge-active-fg)',
+                    borderColor: 'var(--border-subtle)',
+                    background: 'var(--bg-raised)',
                   }}
                 >
-                  <span
-                    className="h-1.5 w-1.5 rounded-full"
-                    style={{ background: 'var(--badge-active-dot)' }}
-                  />
-                  Active
-                </span>
-              </div>
-              <div
-                className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t pt-3 text-[12px]"
-                style={{
-                  borderColor: 'var(--border-subtle)',
-                  color: 'var(--text-3)',
-                }}
-              >
-                <span>Created {fmtDate(info.createdAt)}</span>
-                <span>
-                  {info.lastUsedAt
-                    ? `Last used ${fmtDate(info.lastUsedAt)}`
-                    : 'Never used'}
-                </span>
-              </div>
-            </div>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {k.isPrimary ? (
+                          <span
+                            className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                            style={{
+                              borderColor: 'var(--accent)',
+                              color: 'var(--accent)',
+                              background: 'var(--bg-overlay)',
+                            }}
+                          >
+                            Primary
+                          </span>
+                        ) : null}
+                        {isPro && editingKeyId === k.id ? (
+                          <form
+                            method="post"
+                            className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              if (labelMutation.isPending) return;
+                              labelMutation.mutate({
+                                keyId: k.id,
+                                label: labelDraft,
+                              });
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={labelDraft}
+                              onChange={(e) => setLabelDraft(e.target.value)}
+                              maxLength={64}
+                              placeholder="Label"
+                              autoComplete="off"
+                              className="h-8 min-w-32 flex-1 rounded-md border px-2.5 text-[13px] text-foreground focus-visible-ring"
+                              style={{
+                                borderColor: 'var(--border)',
+                                background: 'var(--bg-subtle)',
+                              }}
+                              aria-label="API key label"
+                            />
+                            <button
+                              type="submit"
+                              disabled={labelMutation.isPending}
+                              className="h-8 rounded-md border border-(--border) px-2.5 text-[12px] font-medium text-(--text-2) hover:bg-(--bg-subtle) disabled:opacity-50 focus-visible-ring"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              disabled={labelMutation.isPending}
+                              onClick={() => setEditingKeyId(null)}
+                              className="h-8 rounded-md px-2 text-[12px] text-(--text-3) hover:text-foreground focus-visible-ring"
+                            >
+                              Cancel
+                            </button>
+                          </form>
+                        ) : (
+                          <div className="flex min-w-0 flex-wrap items-center gap-2">
+                            <p className="text-[12px] font-medium text-foreground">
+                              {(() => {
+                                const t = k.label.trim();
+                                if (k.isPrimary && (!t || t === 'default')) {
+                                  return 'Primary key';
+                                }
+                                if (t) return k.label;
+                                return 'Unnamed key';
+                              })()}
+                            </p>
+                            {isPro ? (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => {
+                                  setEditingKeyId(k.id);
+                                  setLabelDraft(k.label);
+                                }}
+                                className="inline-flex h-7 items-center gap-1 rounded-md border border-transparent px-1.5 text-[11px] font-medium text-(--accent) hover:border-(--border) hover:bg-(--bg-subtle) disabled:opacity-40 focus-visible-ring"
+                              >
+                                <Pencil className="h-3 w-3" aria-hidden />
+                                Rename
+                              </button>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                      <p
+                        className="text-[11px]"
+                        style={{ color: 'var(--text-3)' }}
+                      >
+                        Key prefix
+                      </p>
+                      <p className="mt-1 font-mono text-[14px]">
+                        <span className="text-foreground">{k.keyPrefix}</span>
+                        <span style={{ color: 'var(--text-3)' }}>
+                          {'•'.repeat(20)}
+                        </span>
+                      </p>
+                      <div
+                        className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t pt-3 text-[12px]"
+                        style={{
+                          borderColor: 'var(--border-subtle)',
+                          color: 'var(--text-3)',
+                        }}
+                      >
+                        <span>Created {fmtDate(k.createdAt)}</span>
+                        <span>
+                          {k.lastUsedAt
+                            ? `Last used ${fmtDate(k.lastUsedAt)}`
+                            : 'Never used'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() =>
+                          createMutation.mutate({ rotateKeyId: k.id })
+                        }
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:bg-(--bg-subtle) disabled:opacity-40 focus-visible-ring"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Rotate
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => revokeOneMutation.mutate(k.id)}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:border-(--btn-danger-hover-border) hover:bg-(--btn-danger-hover-bg) hover:text-(--btn-danger-hover-fg) disabled:opacity-40 focus-visible-ring"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Revoke
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           ) : (
             <div
               className="rounded-lg border border-dashed px-6 py-8 text-center"

@@ -1,0 +1,29 @@
+---
+description: Telegram bot — Telegraf, API client, commands
+globs: apps/bot/**/*.ts
+alwaysApply: false
+---
+
+# Bot (`apps/bot`)
+
+## Env
+
+`TELEGRAM_BOT_TOKEN`, `API_BASE_URL` (server origin), `BOT_INTERNAL_TOKEN` (must match server).
+
+## Architecture
+
+- **Entry:** `src/index.ts` — registers command modules, `bot.catch` logging.
+- **API:** `services/apiClient.ts` — `verifyNafdac`, `recordBotActivity`, `initializeBotProCheckout`, `fetchBotStatus`; headers `x-internal-bot-token`, Telegram user fields (URI-encoded for header safety).
+- **Commands:** `commands/verifyCommand.ts` (`/verify`, inline flow, `/upgrade`), `commands/statusCommand.ts` (`/status`).
+- **UX:** `verifyButtonMarkup` for consistent keyboards; HTML replies where escaped content is controlled.
+
+## Server endpoints used
+
+- `POST /api/bot/activity`
+- `POST /api/bot/status` — `{ telegramId }`
+- `POST /api/bot/billing/initialize-bot-pro` — `{ telegramId }`
+- `GET /api/verify/:nafdac` with bot headers
+
+## Conventions
+
+- ESM with **`.js` imports** in source; keep messages clear for **free vs Bot Pro** (avoid implying Pro users are on “free tier”).

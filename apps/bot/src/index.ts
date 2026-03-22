@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { Telegraf } from 'telegraf';
+import { registerStatusCommand } from './commands/statusCommand.js';
 import { registerVerifyCommand } from './commands/verifyCommand.js';
 import {
   recordBotActivity,
@@ -26,6 +27,7 @@ async function main() {
   const bot = new Telegraf(token);
 
   registerVerifyCommand(bot, apiBase);
+  registerStatusCommand(bot, apiBase);
 
   bot.command('start', async (ctx) => {
     if (ctx.from) {
@@ -39,8 +41,10 @@ async function main() {
         '',
         'Commands:',
         '/verify &lt;number&gt; — look up a registration',
+        '/status — plan, total lookups, and today’s usage (UTC)',
+        '/upgrade — Bot Pro (no daily lookup cap)',
         '',
-        '<i>Send /verify &lt;number&gt; to check a product.</i>',
+        '<i>Without Bot Pro: up to 5 lookups per UTC day. Bot Pro: unlimited. /status always shows your plan and usage.</i>',
       ].join('\n'),
       { parse_mode: 'HTML', reply_markup: verifyButtonMarkup },
     );

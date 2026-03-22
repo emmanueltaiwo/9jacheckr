@@ -11,6 +11,8 @@ import { SiteNav } from '@/components/site-nav';
 import { LandingHeroActions } from '@/components/landing-hero-actions';
 import { LandingFooterCta } from '@/components/landing-footer-cta';
 import { LandingCodeTabs } from '@/components/landing-code-tabs';
+import { LandingPricingSection } from '@/components/landing-pricing-section';
+import { ProApiEndpointsDocs } from '@/components/pro-api-endpoints-docs';
 
 const SUPPORT_PAYSTACK_URL = 'https://paystack.shop/pay/support9jacheckr';
 
@@ -351,7 +353,7 @@ export default async function Home() {
               product registrations.
               <br />
               <span style={{ color: 'var(--text-2)' }}>Get JSON back.</span>
-            </h1>
+          </h1>
 
             <p
               className="anim anim-d2 mt-6 max-w-[440px] text-[16px] leading-[1.75]"
@@ -498,6 +500,8 @@ export default async function Home() {
         </div>
       </section>
 
+      <LandingPricingSection />
+
       <section
         id="api"
         className="mx-auto max-w-[1120px] min-w-0 scroll-mt-20 px-5 py-20 sm:px-6 sm:py-28"
@@ -585,6 +589,48 @@ export default async function Home() {
             />
           </div>
         </div>
+
+        <div
+          className="mt-20 border-t pt-16"
+          style={{ borderColor: 'var(--border-subtle)' }}
+        >
+          <div className="max-w-xl">
+            <p
+              className="font-mono text-[11px] uppercase tracking-[0.2em]"
+              style={{ color: 'var(--text-3)' }}
+            >
+              API Pro
+            </p>
+            <h2 className="mt-3 font-display text-[1.65rem] font-semibold sm:text-[1.9rem]">
+              Batch verify &amp; product search
+            </h2>
+            <p
+              className="mt-3 text-[14px] leading-relaxed"
+              style={{ color: 'var(--text-2)' }}
+            >
+              These endpoints use the same{' '}
+              <code
+                className="font-mono text-[12px]"
+                style={{ color: 'var(--text-3)' }}
+              >
+                x-api-key
+              </code>{' '}
+              header and require an active{' '}
+              <span className="font-medium text-foreground">API Pro</span>{' '}
+              subscription. Free accounts receive{' '}
+              <code
+                className="font-mono text-[12px]"
+                style={{ color: 'var(--text-3)' }}
+              >
+                403 FEATURE_REQUIRES_PRO
+              </code>
+              .
+            </p>
+          </div>
+          <div className="mt-10 min-w-0 max-w-2xl">
+            <ProApiEndpointsDocs apiBaseUrl={apiBase} />
+          </div>
+        </div>
       </section>
 
       <section
@@ -620,9 +666,9 @@ export default async function Home() {
               </p>
               <ul className="mt-5 space-y-2">
                 {[
-                  'Free to start',
+                  'Free to start — upgrade anytime',
                   'Instant API key',
-                  'No credit card required',
+                  'No credit card for Free tier',
                 ].map((item) => (
                   <li
                     key={item}
@@ -693,6 +739,13 @@ export default async function Home() {
                 Features
               </a>
               <a
+                href="#pricing"
+                className="block transition-colors hover:text-foreground"
+                style={{ color: 'var(--text-3)' }}
+              >
+                Pricing
+              </a>
+              <a
                 href="#api"
                 className="block transition-colors hover:text-foreground"
                 style={{ color: 'var(--text-3)' }}
@@ -722,16 +775,16 @@ export default async function Home() {
                 style={{ color: 'var(--text-3)' }}
               >
                 Telegram bot
-              </a>
-              <a
+          </a>
+          <a
                 href={SUPPORT_PAYSTACK_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
                 className="block transition-colors hover:text-foreground"
                 style={{ color: 'var(--text-3)' }}
-              >
+          >
                 Support the project
-              </a>
+          </a>
             </div>
           </div>
         </div>

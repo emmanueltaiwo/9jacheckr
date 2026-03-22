@@ -1,16 +1,34 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import {
+  apiBillingQueryKey,
+  fetchApiBillingStatus,
+} from '@/lib/api-billing-query';
+import { ProApiEndpointsDocs } from '@/components/pro-api-endpoints-docs';
+import { ApiProUpgradeCta } from '@/components/dashboard/api-pro-upgrade-cta';
 import { CurlCard } from './curl-card';
 
 export function HomePageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
+  const base = apiBaseUrl.replace(/\/$/, '');
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
+  const billingQuery = useQuery({
+    queryKey: apiBillingQueryKey(base),
+    queryFn: () => fetchApiBillingStatus(base),
+    enabled: Boolean(base),
+    staleTime: 60 * 1000,
+  });
+  const isPro = billingQuery.data?.plan === 'pro_api';
+
   return (
     <div className="space-y-8">
+      <ApiProUpgradeCta apiBaseUrl={apiBaseUrl} variant="banner" />
+
       <div>
         <h1 className="font-display text-[1.5rem] font-semibold tracking-[-0.03em] text-foreground">
           Overview
@@ -116,6 +134,32 @@ export function HomePageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
         </h2>
         <CurlCard apiBaseUrl={apiBaseUrl} />
       </div>
+
+      {isPro ? (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-[14px] font-semibold text-foreground">
+              API Pro endpoints
+            </h2>
+            <p
+              className="mt-1 text-[13px] leading-relaxed"
+              style={{ color: 'var(--text-2)' }}
+            >
+              Batch verify and product search are included with your API Pro
+              plan. Same{' '}
+              <code
+                className="font-mono text-[12px]"
+                style={{ color: 'var(--text-3)' }}
+              >
+                x-api-key
+              </code>{' '}
+              header; batch requests count each NAFDAC toward your monthly
+              quota.
+            </p>
+          </div>
+          <ProApiEndpointsDocs apiBaseUrl={apiBaseUrl} />
+        </div>
+      ) : null}
     </div>
   );
 }

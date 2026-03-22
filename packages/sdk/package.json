@@ -1,7 +1,7 @@
 {
   "name": "@9jacheckr/sdk",
-  "version": "0.1.0",
-  "description": "Client for the 9ja Checkr NAFDAC verify API",
+  "version": "0.2.0",
+  "description": "Client for the 9ja Checkr NAFDAC verify API (single verify, batch verify, product search)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

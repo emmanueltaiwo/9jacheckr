@@ -6,9 +6,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
   return (
     <DashboardAuthGate>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell apiBaseUrl={apiBaseUrl}>{children}</DashboardShell>
     </DashboardAuthGate>
   );
 }

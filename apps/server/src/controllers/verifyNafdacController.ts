@@ -8,6 +8,14 @@ import type {
 import { getOrFetchProduct } from '../services/verifyService.js';
 import { recordBotVerifyMetrics } from '../services/botMetricsService.js';
 import { recordUserApiVerify } from '../services/userApiUsageService.js';
+import {
+  assertMonthlyApiQuotaAllows,
+  incrementMonthlyApiVerify,
+} from '../services/monthlyApiQuotaService.js';
+import {
+  assertBotDailyQuotaAllows,
+  incrementBotDailyVerify,
+} from '../services/botPlanService.js';
 import { logger } from '../utils/logger.js';
 
 function apiKeyUserId(req: Request): string | undefined {
@@ -51,6 +59,32 @@ export async function verifyNafdacController(
       return;
     }
 
+    if (keyUserId) {
+      const quota = await assertMonthlyApiQuotaAllows(keyUserId);
+      if (!quota.ok) {
+        const body: VerifyApiErrorBody = {
+          ok: false,
+          code: 'PLAN_QUOTA_EXCEEDED',
+          message: `Monthly verify limit reached (${quota.limit}). Upgrade to API Pro for a higher quota.`,
+        };
+        res.status(429).json(body);
+        return;
+      }
+    }
+
+    if (isBot && botTelegram?.id) {
+      const bq = await assertBotDailyQuotaAllows(botTelegram.id);
+      if (!bq.ok) {
+        const body: VerifyApiErrorBody = {
+          ok: false,
+          code: 'BOT_DAILY_LIMIT',
+          message: `Without Bot Pro, this bot allows up to ${bq.limit} checks per UTC day (resets at midnight UTC). /upgrade for Bot Pro (no daily cap). /status shows your plan and usage.`,
+        };
+        res.status(429).json(body);
+        return;
+      }
+    }
+
     logger.info('verifyController request received', { nafdac: raw });
     const product: ProductPlain | null = await getOrFetchProduct(raw);
     if (!product) {
@@ -59,6 +93,10 @@ export async function verifyNafdacController(
       }
       if (keyUserId) {
         await recordUserApiVerify(keyUserId, 'not_found').catch(() => {});
+        await incrementMonthlyApiVerify(keyUserId).catch(() => {});
+      }
+      if (isBot && botTelegram?.id) {
+        await incrementBotDailyVerify(botTelegram.id).catch(() => {});
       }
       const body: VerifyApiErrorBody = {
         ok: false,
@@ -74,6 +112,10 @@ export async function verifyNafdacController(
     }
     if (keyUserId) {
       await recordUserApiVerify(keyUserId, 'found').catch(() => {});
+      await incrementMonthlyApiVerify(keyUserId).catch(() => {});
+    }
+    if (isBot && botTelegram?.id) {
+      await incrementBotDailyVerify(botTelegram.id).catch(() => {});
     }
     const body: VerifyApiSuccess = { ok: true, product };
     res.status(200).json(body);

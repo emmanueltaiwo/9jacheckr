@@ -2,17 +2,26 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Key, LayoutDashboard, LogOut } from 'lucide-react';
+import { BookOpen, Key, LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ApiProUpgradeCta } from '@/components/dashboard/api-pro-upgrade-cta';
+import { DashboardProLabel } from '@/components/dashboard/dashboard-pro-label';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/keys', label: 'API Keys', icon: Key, exact: false },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, exact: true },
 ] as const;
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  apiBaseUrl = '',
+}: {
+  children: React.ReactNode;
+  apiBaseUrl?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
@@ -29,8 +38,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="page-bg flex min-h-dvh">
-      <aside className="sidebar hidden flex-col lg:flex">
+    <div className="page-bg flex h-dvh min-h-0 overflow-hidden">
+      <aside className="sidebar hidden min-h-0 flex-col lg:flex">
         <div
           className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-3"
           style={{ borderColor: 'var(--border-subtle)' }}
@@ -76,6 +85,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             })}
           </ul>
 
+          {apiBaseUrl ? (
+            <div className="mt-4 px-0.5">
+              <ApiProUpgradeCta apiBaseUrl={apiBaseUrl} variant="sidebar" />
+            </div>
+          ) : null}
+
           <div
             className="mt-4 border-t pt-4"
             style={{ borderColor: 'var(--border-subtle)' }}
@@ -106,9 +121,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               }}
             >
               {user.name ? (
-                <p className="truncate text-[12px] font-medium text-foreground">
-                  {user.name}
-                </p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="min-w-0 truncate text-[12px] font-medium text-foreground">
+                    {user.name}
+                  </p>
+                  {apiBaseUrl ? (
+                    <DashboardProLabel apiBaseUrl={apiBaseUrl} />
+                  ) : null}
+                </div>
+              ) : apiBaseUrl ? (
+                <div className="mb-0.5">
+                  <DashboardProLabel apiBaseUrl={apiBaseUrl} />
+                </div>
               ) : null}
               <p className="truncate text-[11px] text-(--text-3)">
                 {user.email}
@@ -129,7 +153,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header
           className="flex h-14 shrink-0 items-center justify-between border-b px-4 backdrop-blur-md lg:hidden"
           style={{
@@ -147,6 +171,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             9ja Checkr
           </Link>
           <div className="flex items-center gap-2">
+            {apiBaseUrl ? (
+              <>
+                <DashboardProLabel apiBaseUrl={apiBaseUrl} />
+                <ApiProUpgradeCta apiBaseUrl={apiBaseUrl} variant="navbar" />
+              </>
+            ) : null}
             <ThemeToggle />
             <button
               type="button"
@@ -191,7 +221,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           })}
         </div>
 
-        <main className="flex-1 overflow-y-auto px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
           <div className="mx-auto max-w-3xl">{children}</div>
         </main>
       </div>

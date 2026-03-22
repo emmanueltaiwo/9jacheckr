@@ -1,0 +1,21 @@
+---
+description: @9jacheckr/sdk — CheckrClient, defaults, error handling
+globs: packages/sdk/**/*.ts
+alwaysApply: false
+---
+
+# SDK (`packages/sdk`)
+
+## Role
+
+Official Node client: **`verify`**, **`verifyBatch`** (API Pro), **`searchProducts`** (API Pro). Default API origin `https://api.9jacheckr.xyz` (`DEFAULT_API_ORIGIN` in `constants.ts`).
+
+## Contract
+
+- Methods **return promises that resolve** — they do **not** throw for HTTP/API failures; narrow on `result.ok`.
+- Match server **`code`** discriminated unions; document new codes in README when adding features.
+- **No API key in browser bundles** — server-side or mobile only.
+
+## Changes
+
+- Keep timeouts and response shaping aligned with `apps/server` verify/search/batch routes and `apps/server/src/types/types.ts` where applicable.

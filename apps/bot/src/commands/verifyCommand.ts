@@ -1,5 +1,9 @@
 import type { Telegraf } from 'telegraf';
-import { telegramUserToCaller, verifyNafdac } from '../services/apiClient.js';
+import {
+  initializeBotProCheckout,
+  telegramUserToCaller,
+  verifyNafdac,
+} from '../services/apiClient.js';
 import {
   formatErrorMessage,
   formatNotFoundMessage,
@@ -77,6 +81,19 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
       return;
     }
 
+    if (res.code === 'BOT_DAILY_LIMIT') {
+      await ctx.reply(
+        [
+          '<b>Daily limit reached</b>',
+          '',
+          'Without Bot Pro, this bot allows 5 lookups per UTC day (resets midnight UTC).',
+          '/upgrade — Bot Pro (no daily cap). /status — your plan and usage.',
+        ].join('\n'),
+        { parse_mode: 'HTML', reply_markup: verifyButtonMarkup },
+      );
+      return;
+    }
+
     await ctx.reply(formatErrorMessage(res.message), {
       parse_mode: 'HTML',
       reply_markup: verifyButtonMarkup,
@@ -132,6 +149,19 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
         return;
       }
 
+      if (res.code === 'BOT_DAILY_LIMIT') {
+        await ctx.reply(
+          [
+            '<b>Daily limit reached</b>',
+            '',
+            'Without Bot Pro, this bot allows 5 lookups per UTC day (resets midnight UTC).',
+            '/upgrade — Bot Pro (no daily cap). /status — your plan and usage.',
+          ].join('\n'),
+          { parse_mode: 'HTML', reply_markup: verifyButtonMarkup },
+        );
+        return;
+      }
+
       await ctx.reply(formatErrorMessage(res.message), {
         parse_mode: 'HTML',
         reply_markup: verifyButtonMarkup,
@@ -147,5 +177,23 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
         },
       );
     }
+  });
+
+  bot.command('upgrade', async (ctx) => {
+    const from = ctx.from;
+    if (!from) {
+      await ctx.reply('Could not read your Telegram account.');
+      return;
+    }
+    const telegramId = String(from.id);
+    const r = await initializeBotProCheckout(apiBaseUrl, telegramId);
+    if (!r.ok) {
+      await ctx.reply(`Could not start checkout: ${r.message}`);
+      return;
+    }
+    await ctx.reply(
+      `<a href="${r.authorizationUrl}">Tap to subscribe to Bot Pro (₦1,000/mo, unlimited checks)</a>`,
+      { parse_mode: 'HTML', link_preview_options: { is_disabled: true } },
+    );
   });
 }

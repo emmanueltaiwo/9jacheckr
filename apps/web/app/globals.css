@@ -212,7 +212,6 @@ html.light {
   box-sizing: border-box;
 }
 
-
 body {
   min-height: 100dvh;
   background-color: var(--bg);
@@ -222,6 +221,10 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  cursor: pointer;
 }
 
 .font-display {
@@ -247,10 +250,7 @@ body {
 }
 
 .dot-grid {
-  background-image: radial-gradient(
-    var(--dot-grid-color) 1px,
-    transparent 1px
-  );
+  background-image: radial-gradient(var(--dot-grid-color) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -373,7 +373,9 @@ body {
   font-weight: 500;
   border-radius: 6px;
   padding: 4px 8px;
-  transition: color 0.12s, background-color 0.12s;
+  transition:
+    color 0.12s,
+    background-color 0.12s;
 }
 
 .btn-ghost:hover {
