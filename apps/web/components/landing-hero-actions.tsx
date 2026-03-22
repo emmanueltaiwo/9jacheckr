@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Heart } from 'lucide-react';
+import { ArrowRight, Heart, Mail } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { SUPPORT_MAILTO } from '@/lib/support';
 
 type LandingHeroActionsProps = {
   supportHref?: string;
@@ -39,6 +40,13 @@ export function LandingHeroActions({ supportHref }: LandingHeroActionsProps) {
           Support the project
         </a>
       ) : null}
+      <a
+        href={SUPPORT_MAILTO}
+        className="btn-secondary inline-flex h-[42px] w-full shrink-0 items-center justify-center gap-2 px-5 text-[14px] no-underline focus-visible-ring sm:w-auto"
+      >
+        <Mail className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+        Email support
+      </a>
     </div>
   );
 }

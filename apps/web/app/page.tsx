@@ -13,6 +13,7 @@ import { LandingFooterCta } from '@/components/landing-footer-cta';
 import { LandingCodeTabs } from '@/components/landing-code-tabs';
 import { LandingPricingSection } from '@/components/landing-pricing-section';
 import { ProApiEndpointsDocs } from '@/components/pro-api-endpoints-docs';
+import { SUPPORT_MAILTO } from '@/lib/support';
 
 const SUPPORT_PAYSTACK_URL = 'https://paystack.shop/pay/support9jacheckr';
 
@@ -813,6 +814,13 @@ export default async function Home() {
                 style={{ color: 'var(--text-3)' }}
               >
                 Support the project
+              </a>
+              <a
+                href={SUPPORT_MAILTO}
+                className="block transition-colors hover:text-foreground"
+                style={{ color: 'var(--text-3)' }}
+              >
+                Email support
               </a>
             </div>
           </div>

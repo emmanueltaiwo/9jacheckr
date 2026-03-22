@@ -2,11 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Key, LayoutDashboard, LogOut, Settings } from 'lucide-react';
+import {
+  BookOpen,
+  Key,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  Settings,
+} from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { ApiProUpgradeCta } from '@/components/dashboard/api-pro-upgrade-cta';
 import { DashboardProLabel } from '@/components/dashboard/dashboard-pro-label';
+import { SUPPORT_MAILTO } from '@/lib/support';
 import { cn } from '@/lib/utils';
 
 const NAV = [
@@ -113,6 +121,16 @@ export function DashboardShell({
               />
               API Reference
             </a>
+            <a
+              href={SUPPORT_MAILTO}
+              className="mt-0.5 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-(--text-2) transition-colors hover:bg-(--nav-hover-bg) hover:text-foreground focus-visible-ring"
+            >
+              <Mail
+                className="h-4 w-4 shrink-0 text-(--text-3)"
+                strokeWidth={1.75}
+              />
+              Email support
+            </a>
           </div>
         </nav>
 
@@ -185,7 +203,14 @@ export function DashboardShell({
                 <ApiProUpgradeCta apiBaseUrl={apiBaseUrl} variant="navbar" />
               </div>
             ) : null}
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+              <a
+                href={SUPPORT_MAILTO}
+                className="flex h-9 w-9 items-center justify-center rounded-md text-(--text-2) transition-colors hover:bg-(--nav-hover-bg) hover:text-foreground focus-visible-ring"
+                aria-label="Email support"
+              >
+                <Mail className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+              </a>
               <ThemeToggle />
               <button
                 type="button"
