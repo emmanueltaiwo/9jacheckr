@@ -1,5 +1,6 @@
 import type { Telegraf } from 'telegraf';
 import {
+  fetchBotStatus,
   initializeBotProCheckout,
   telegramUserToCaller,
   verifyNafdac,
@@ -186,6 +187,29 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
       return;
     }
     const telegramId = String(from.id);
+
+    const status = await fetchBotStatus(apiBaseUrl, telegramId);
+    if (status.ok && status.plan === 'pro_bot') {
+      const periodLine =
+        status.periodEnd != null
+          ? `\n\n<b>Current period ends (UTC):</b> ${formatUpgradeUtcDate(status.periodEnd)}`
+          : '';
+      await ctx.reply(
+        [
+          '<b>You already have Bot Pro</b>',
+          '',
+          'Your subscription is active — unlimited lookups, no daily cap.',
+          '/status — plan &amp; usage',
+          '/payments — payment history',
+          periodLine,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        { parse_mode: 'HTML', reply_markup: verifyButtonMarkup },
+      );
+      return;
+    }
+
     const r = await initializeBotProCheckout(apiBaseUrl, telegramId);
     if (!r.ok) {
       await ctx.reply(`Could not start checkout: ${r.message}`);
@@ -196,4 +220,15 @@ export function registerVerifyCommand(bot: Telegraf, apiBaseUrl: string) {
       { parse_mode: 'HTML', link_preview_options: { is_disabled: true } },
     );
   });
+}
+
+function formatUpgradeUtcDate(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-NG', {
+      dateStyle: 'medium',
+      timeZone: 'UTC',
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
 }

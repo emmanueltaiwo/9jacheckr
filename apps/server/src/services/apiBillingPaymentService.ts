@@ -1,7 +1,7 @@
 import { ApiBillingPaymentModel } from '../models/apiBillingPaymentModel.js';
 import { logger } from '../utils/logger.js';
 
-function asRecord(v: unknown): Record<string, unknown> | null {
+export function asRecord(v: unknown): Record<string, unknown> | null {
   if (v && typeof v === 'object' && !Array.isArray(v)) {
     return v as Record<string, unknown>;
   }
@@ -14,7 +14,7 @@ function parseDate(v: unknown): Date | null {
   return Number.isNaN(dt.getTime()) ? null : dt;
 }
 
-function pickReference(d: Record<string, unknown>): string | null {
+export function pickReference(d: Record<string, unknown>): string | null {
   if (typeof d.reference === 'string' && d.reference.trim()) {
     return d.reference.trim();
   }
@@ -31,7 +31,7 @@ function pickReference(d: Record<string, unknown>): string | null {
   return null;
 }
 
-function pickAmount(d: Record<string, unknown>): number | null {
+export function pickAmount(d: Record<string, unknown>): number | null {
   if (typeof d.amount === 'number' && Number.isFinite(d.amount)) {
     return d.amount;
   }
@@ -48,7 +48,7 @@ function pickAmount(d: Record<string, unknown>): number | null {
   return null;
 }
 
-function pickCurrency(d: Record<string, unknown>): string {
+export function pickCurrency(d: Record<string, unknown>): string {
   if (typeof d.currency === 'string' && d.currency.trim()) {
     return d.currency.trim();
   }
@@ -59,7 +59,7 @@ function pickCurrency(d: Record<string, unknown>): string {
   return 'NGN';
 }
 
-function pickChannel(d: Record<string, unknown>): string | null {
+export function pickChannel(d: Record<string, unknown>): string | null {
   if (typeof d.channel === 'string' && d.channel.trim()) {
     return d.channel.trim();
   }
@@ -70,7 +70,7 @@ function pickChannel(d: Record<string, unknown>): string | null {
   return null;
 }
 
-function pickPaidAt(d: Record<string, unknown>): Date {
+export function pickPaidAt(d: Record<string, unknown>): Date {
   const fromRoot = parseDate(d.paid_at) ?? parseDate(d.paidAt);
   if (fromRoot) return fromRoot;
   const tx = asRecord(d.transaction);
@@ -81,7 +81,7 @@ function pickPaidAt(d: Record<string, unknown>): Date {
   return new Date();
 }
 
-function pickDescription(d: Record<string, unknown>): string | null {
+export function pickDescription(d: Record<string, unknown>): string | null {
   if (typeof d.gateway_response === 'string' && d.gateway_response.trim()) {
     return d.gateway_response.trim();
   }

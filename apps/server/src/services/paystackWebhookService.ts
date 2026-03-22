@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { ApiSubscriptionModel } from '../models/apiSubscriptionModel.js';
 import { BotSubscriptionModel } from '../models/botSubscriptionModel.js';
 import { recordApiProPaymentFromWebhook } from './apiBillingPaymentService.js';
+import { recordBotProPaymentFromWebhook } from './botBillingPaymentService.js';
 import { logger } from '../utils/logger.js';
 
 function asRecord(v: unknown): Record<string, unknown> | null {
@@ -244,6 +245,28 @@ export async function processPaystackWebhookPayload(
     }
   };
 
+  const maybeRecordBotProPayment = async () => {
+    if (effectiveTier !== 'bot_pro' || !metaTg) return;
+    if (event === 'invoice.update' || event === 'invoice.create') {
+      const paid =
+        d.paid === true ||
+        d.paid === 1 ||
+        String(d.status ?? '').toLowerCase() === 'success';
+      if (!paid) return;
+    } else if (event !== 'charge.success') {
+      return;
+    }
+    try {
+      await recordBotProPaymentFromWebhook({
+        telegramId: metaTg,
+        event,
+        d,
+      });
+    } catch (e) {
+      logger.warn('BotBillingPayment record failed', { message: String(e) });
+    }
+  };
+
   const activateApi = async () => {
     if (!resolvedUserId) {
       logger.warn('Paystack webhook: API Pro not activated (no user id)', {
@@ -377,6 +400,7 @@ export async function processPaystackWebhookPayload(
   if (event === 'charge.success') {
     await runActivations('charge.success');
     await maybeRecordApiProPayment();
+    await maybeRecordBotProPayment();
   }
 
   if (event === 'invoice.update' || event === 'invoice.create') {
@@ -393,6 +417,7 @@ export async function processPaystackWebhookPayload(
     if (paid) {
       await runActivations(event);
       await maybeRecordApiProPayment();
+      await maybeRecordBotProPayment();
     }
   }
 

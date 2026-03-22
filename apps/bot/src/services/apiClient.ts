@@ -250,3 +250,83 @@ export async function fetchBotStatus(
     return { ok: false, message: 'Could not reach the server.' };
   }
 }
+
+export type BotBillingTxRow = {
+  reference: string;
+  amountKobo: number;
+  currency: string;
+  status: string;
+  paidAt: string | null;
+  createdAt: string | null;
+  channel: string | null;
+  description: string | null;
+};
+
+export type BotBillingTransactionsResponse =
+  | {
+      ok: true;
+      transactions: BotBillingTxRow[];
+      meta: { total: number; page: number; pageCount: number };
+    }
+  | { ok: false; message?: string };
+
+export async function fetchBotBillingTransactions(
+  baseUrl: string,
+  telegramId: string,
+  page = 1,
+  perPage = 15,
+): Promise<BotBillingTransactionsResponse> {
+  const root = baseUrl.replace(/\/$/, '');
+  try {
+    const res = await axios.post<unknown>(
+      `${root}/api/bot/billing/transactions`,
+      { telegramId, page, perPage },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-bot-token': process.env.BOT_INTERNAL_TOKEN ?? '',
+        },
+        timeout: 15_000,
+        validateStatus: () => true,
+      },
+    );
+    const data = res.data;
+    if (
+      data &&
+      typeof data === 'object' &&
+      (data as { ok?: boolean }).ok === true &&
+      'transactions' in data &&
+      'meta' in data
+    ) {
+      const d = data as {
+        transactions: unknown;
+        meta: unknown;
+      };
+      const transactions = Array.isArray(d.transactions)
+        ? (d.transactions as BotBillingTxRow[])
+        : [];
+      const meta = d.meta && typeof d.meta === 'object' ? d.meta : {};
+      const m = meta as Record<string, unknown>;
+      const total =
+        typeof m.total === 'number' && Number.isFinite(m.total) ? m.total : 0;
+      const pageNum =
+        typeof m.page === 'number' && Number.isFinite(m.page) ? m.page : 1;
+      const pageCount =
+        typeof m.pageCount === 'number' && Number.isFinite(m.pageCount)
+          ? m.pageCount
+          : 1;
+      return {
+        ok: true,
+        transactions,
+        meta: { total, page: pageNum, pageCount },
+      };
+    }
+    const msg =
+      data && typeof data === 'object' && 'message' in data
+        ? String((data as { message?: string }).message)
+        : 'Could not load payments.';
+    return { ok: false, message: msg };
+  } catch {
+    return { ok: false, message: 'Could not reach billing service.' };
+  }
+}

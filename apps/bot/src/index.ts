@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { Telegraf } from 'telegraf';
+import { registerPaymentsCommand } from './commands/paymentsCommand.js';
 import { registerStatusCommand } from './commands/statusCommand.js';
 import { registerVerifyCommand } from './commands/verifyCommand.js';
 import {
@@ -28,6 +29,7 @@ async function main() {
 
   registerVerifyCommand(bot, apiBase);
   registerStatusCommand(bot, apiBase);
+  registerPaymentsCommand(bot, apiBase);
 
   bot.command('start', async (ctx) => {
     if (ctx.from) {
@@ -42,6 +44,7 @@ async function main() {
         'Commands:',
         '/verify &lt;number&gt; — look up a registration',
         '/status — plan, total lookups, and today’s usage (UTC)',
+        '/payments — Bot Pro payment history (Paystack)',
         '/upgrade — Bot Pro (no daily lookup cap)',
         '',
         '<i>Without Bot Pro: up to 5 lookups per UTC day. Bot Pro: unlimited. /status always shows your plan and usage.</i>',
