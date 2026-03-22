@@ -27,6 +27,16 @@ async function main() {
 
   const app = express();
 
+  // Railway / reverse proxies set X-Forwarded-For; without this, express-rate-limit throws
+  // ERR_ERL_UNEXPECTED_X_FORWARDED_FOR and req.ip is wrong. Disable with TRUST_PROXY=0.
+  {
+    const t = process.env.TRUST_PROXY?.trim();
+    if (t !== '0' && t !== 'false') {
+      const n = t ? Number(t) : 1;
+      app.set('trust proxy', Number.isFinite(n) && n > 0 ? n : 1);
+    }
+  }
+
   app.use(
     cors({
       origin: process.env.WEB_APP_URL ?? true,

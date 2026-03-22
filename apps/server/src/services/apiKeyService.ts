@@ -193,7 +193,7 @@ export async function revokeApiKeyById(userId: string, keyId: string) {
   return ApiKeyModel.findOneAndUpdate(
     { _id: keyId, userId, revokedAt: null },
     { $set: { revokedAt: new Date() } },
-    { new: true },
+    { returnDocument: 'after' },
   );
 }
 

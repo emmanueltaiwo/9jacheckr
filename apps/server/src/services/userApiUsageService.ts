@@ -21,7 +21,7 @@ export async function recordUserApiVerify(
       $set: { lastVerifyAt: now },
       $setOnInsert: { userId },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 }
 
@@ -34,7 +34,7 @@ export async function recordUserApiSearch(userId: string) {
       $set: { lastSearchAt: now },
       $setOnInsert: { userId },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 }
 

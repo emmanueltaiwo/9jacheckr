@@ -26,7 +26,7 @@ export async function recordBotStart(payload: BotTelegramPayload) {
         verifyCount: 0,
       },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 }
 
@@ -46,7 +46,7 @@ export async function recordBotVerifyMetrics(
       $inc: inc,
       $setOnInsert: { yearMonth },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 
   if (!telegram?.id) return;
@@ -68,6 +68,6 @@ export async function recordBotVerifyMetrics(
         startsCount: 0,
       },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 }
