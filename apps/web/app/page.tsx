@@ -88,7 +88,7 @@ function TerminalPreview() {
 
       <div className="min-w-0 overflow-x-auto p-5 font-mono text-[13px] leading-relaxed">
         <div className="flex min-w-0 gap-2.5">
-          <span className="shrink-0" style={{ color: '#dfff1f' }}>
+          <span className="shrink-0" style={{ color: 'var(--terminal-prompt)' }}>
             ›
           </span>
           <div className="min-w-0 wrap-break-word">
@@ -107,16 +107,16 @@ function TerminalPreview() {
 
         <div
           className="my-4 flex items-center gap-2.5 border-t border-b py-3"
-          style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+          style={{ borderColor: 'var(--terminal-status-border)' }}
         >
           <CheckCircle2
             className="h-4 w-4"
-            style={{ color: '#9ece6a' }}
+            style={{ color: 'var(--status-ok)' }}
             strokeWidth={2}
           />
           <span
             className="text-[12px] font-semibold"
-            style={{ color: '#9ece6a' }}
+            style={{ color: 'var(--status-ok)' }}
           >
             200 OK
           </span>
@@ -131,8 +131,8 @@ function TerminalPreview() {
         <div
           className="min-w-0 space-y-0.5 overflow-x-auto rounded-lg p-4"
           style={{
-            background: 'rgba(0,0,0,0.35)',
-            border: '1px solid rgba(255,255,255,0.05)',
+            background: 'var(--terminal-json-bg)',
+            border: '1px solid var(--terminal-json-border)',
           }}
         >
           <Line p="">
@@ -337,7 +337,10 @@ export default async function Home() {
                   background: 'var(--bg-subtle)',
                 }}
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-[#dfff1f]" />
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ background: 'var(--accent)' }}
+                />
                 NAFDAC Verification API
               </span>
             </div>
@@ -389,8 +392,7 @@ export default async function Home() {
             <div
               className="pointer-events-none absolute -inset-8 rounded-2xl opacity-60 blur-2xl sm:-inset-8"
               style={{
-                background:
-                  'radial-gradient(ellipse at center, rgba(223,255,31,0.06), transparent 70%)',
+                background: `radial-gradient(ellipse at center, var(--hero-orb-1), transparent 70%)`,
               }}
               aria-hidden
             />
@@ -430,7 +432,7 @@ export default async function Home() {
           {FEATURES.map(({ icon: Icon, title, body }) => (
             <div
               key={title}
-              className="card group min-w-0 rounded-xl p-5 transition-colors hover:border-white/14"
+              className="card card-hover-border group min-w-0 rounded-xl p-5 transition-colors"
             >
               <div
                 className="flex h-9 w-9 items-center justify-center rounded-lg border"
@@ -558,8 +560,8 @@ export default async function Home() {
                 <span
                   className="shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold"
                   style={{
-                    background: 'rgba(223,255,31,0.12)',
-                    color: '#dfff1f',
+                    background: 'var(--get-badge-bg)',
+                    color: 'var(--get-badge-fg)',
                   }}
                 >
                   GET
@@ -600,8 +602,7 @@ export default async function Home() {
             <div
               className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 translate-x-1/2"
               style={{
-                background:
-                  'radial-gradient(circle, rgba(223,255,31,0.08), transparent 70%)',
+                background: `radial-gradient(circle, var(--hero-orb-2), transparent 70%)`,
               }}
               aria-hidden
             />
@@ -629,7 +630,8 @@ export default async function Home() {
                     style={{ color: 'var(--text-2)' }}
                   >
                     <Check
-                      className="h-3.5 w-3.5 shrink-0 text-[#dfff1f]"
+                      className="h-3.5 w-3.5 shrink-0"
+                      style={{ color: 'var(--accent)' }}
                       strokeWidth={2.5}
                     />
                     {item}
@@ -655,7 +657,10 @@ export default async function Home() {
               href="/"
               className="inline-flex items-center gap-2 text-[14px] font-semibold text-foreground"
             >
-              <span className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] bg-[#dfff1f] text-[11px] font-bold text-black">
+              <span
+                className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] text-[11px] font-bold text-black"
+                style={{ background: 'var(--accent)' }}
+              >
                 9
               </span>
               9ja Checkr

@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 
-/* ── Design tokens ── */
-
 :root {
+  color-scheme: dark;
+
   --bg: #060606;
   --bg-subtle: #0c0c0c;
   --bg-raised: #131313;
@@ -15,13 +15,173 @@
   --accent: #dfff1f;
   --accent-hover: #eaff5e;
 
-  /* Syntax colors (Tokyo Night inspired) */
   --syn-key: #7aa2f7;
   --syn-str: #9ece6a;
   --syn-num: #ff9e64;
   --syn-bool: #9ece6a;
   --syn-punct: #565f89;
   --syn-comment: #444b6a;
+
+  --header-surface: rgba(6, 6, 6, 0.85);
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
+  --nav-hover-bg: rgba(255, 255, 255, 0.05);
+  --dropdown-shadow: 0 12px 48px -12px rgba(0, 0, 0, 0.65);
+
+  --dot-grid-color: rgba(255, 255, 255, 0.06);
+  --glow-lime: radial-gradient(
+    circle at center,
+    rgba(223, 255, 31, 0.12) 0%,
+    transparent 70%
+  );
+
+  --terminal-bg: #0d0f18;
+  --terminal-header-bg: #111219;
+  --terminal-border: rgba(255, 255, 255, 0.08);
+  --terminal-header-border: rgba(255, 255, 255, 0.06);
+  --terminal-json-bg: rgba(0, 0, 0, 0.35);
+  --terminal-json-border: rgba(255, 255, 255, 0.05);
+  --terminal-status-border: rgba(255, 255, 255, 0.05);
+  --terminal-prompt: #dfff1f;
+  --status-ok: #9ece6a;
+
+  --btn-secondary-hover-border: rgba(255, 255, 255, 0.18);
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.03);
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.05);
+  --focus-ring: rgba(223, 255, 31, 0.55);
+
+  --skeleton-base: rgba(255, 255, 255, 0.05);
+  --skeleton-shine: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+
+  --card-hover-border: rgba(255, 255, 255, 0.14);
+  --hero-orb-1: rgba(223, 255, 31, 0.06);
+  --hero-orb-2: rgba(223, 255, 31, 0.08);
+  --get-badge-bg: rgba(223, 255, 31, 0.12);
+  --get-badge-fg: #dfff1f;
+
+  --verify-result-header-gradient: linear-gradient(
+    135deg,
+    rgba(223, 255, 31, 0.07) 0%,
+    transparent 55%
+  );
+  --verify-meta-pill-bg: rgba(255, 255, 255, 0.06);
+
+  --callout-warning-border: rgba(251, 191, 36, 0.25);
+  --callout-warning-bg: rgba(251, 191, 36, 0.07);
+  --callout-warning-fg: rgb(253, 230, 138);
+  --callout-warning-muted: rgba(253, 230, 138, 0.85);
+  --callout-warning-icon: rgb(251, 191, 36);
+  --callout-warning-btn-border: rgba(251, 191, 36, 0.35);
+  --callout-warning-btn-fg: rgb(254, 243, 199);
+  --callout-warning-btn-hover-bg: rgba(245, 158, 11, 0.12);
+
+  --stat-found: #86efac;
+  --stat-not-found: #fde047;
+  --stat-errors: #fca5a5;
+
+  --key-reveal-border: rgba(223, 255, 31, 0.2);
+  --key-reveal-bg: rgba(223, 255, 31, 0.04);
+
+  --badge-active-border: rgba(134, 239, 172, 0.2);
+  --badge-active-bg: rgba(134, 239, 172, 0.08);
+  --badge-active-fg: rgb(134, 239, 172);
+  --badge-active-dot: #34d399;
+
+  --btn-danger-hover-border: rgba(239, 68, 68, 0.4);
+  --btn-danger-hover-fg: rgb(252, 165, 165);
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.08);
+}
+
+html.light {
+  color-scheme: light;
+
+  --bg: #fafafa;
+  --bg-subtle: #f4f4f5;
+  --bg-raised: #ffffff;
+  --bg-overlay: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --text: #18181b;
+  --text-2: #52525b;
+  --text-3: #71717a;
+  --accent: #b8cf00;
+  --accent-hover: #c8e010;
+
+  --syn-key: #2563eb;
+  --syn-str: #15803d;
+  --syn-num: #c2410c;
+  --syn-bool: #15803d;
+  --syn-punct: #64748b;
+  --syn-comment: #94a3b8;
+
+  --header-surface: rgba(250, 250, 250, 0.88);
+  --nav-active-bg: rgba(0, 0, 0, 0.06);
+  --nav-hover-bg: rgba(0, 0, 0, 0.05);
+  --dropdown-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.15);
+
+  --dot-grid-color: rgba(0, 0, 0, 0.08);
+  --glow-lime: radial-gradient(
+    circle at center,
+    rgba(184, 207, 0, 0.14) 0%,
+    transparent 70%
+  );
+
+  --terminal-bg: #f4f4f5;
+  --terminal-header-bg: #e4e4e7;
+  --terminal-border: rgba(0, 0, 0, 0.1);
+  --terminal-header-border: rgba(0, 0, 0, 0.08);
+  --terminal-json-bg: rgba(0, 0, 0, 0.04);
+  --terminal-json-border: rgba(0, 0, 0, 0.08);
+  --terminal-status-border: rgba(0, 0, 0, 0.08);
+  --terminal-prompt: #6b7c00;
+  --status-ok: #15803d;
+
+  --btn-secondary-hover-border: rgba(0, 0, 0, 0.14);
+  --btn-secondary-hover-bg: rgba(0, 0, 0, 0.04);
+  --btn-ghost-hover-bg: rgba(0, 0, 0, 0.05);
+  --focus-ring: rgba(184, 207, 0, 0.55);
+
+  --skeleton-base: rgba(0, 0, 0, 0.06);
+  --skeleton-shine: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+
+  --card-hover-border: rgba(0, 0, 0, 0.12);
+  --hero-orb-1: rgba(184, 207, 0, 0.1);
+  --hero-orb-2: rgba(184, 207, 0, 0.12);
+  --get-badge-bg: rgba(184, 207, 0, 0.18);
+  --get-badge-fg: #3f6212;
+
+  --verify-result-header-gradient: linear-gradient(
+    135deg,
+    rgba(184, 207, 0, 0.1) 0%,
+    transparent 55%
+  );
+  --verify-meta-pill-bg: rgba(0, 0, 0, 0.05);
+
+  --callout-warning-border: rgba(180, 83, 9, 0.22);
+  --callout-warning-bg: rgba(254, 243, 199, 0.55);
+  --callout-warning-fg: rgb(120, 53, 15);
+  --callout-warning-muted: rgba(120, 53, 15, 0.78);
+  --callout-warning-icon: rgb(217, 119, 6);
+  --callout-warning-btn-border: rgba(217, 119, 6, 0.35);
+  --callout-warning-btn-fg: rgb(120, 53, 15);
+  --callout-warning-btn-hover-bg: rgba(245, 158, 11, 0.18);
+
+  --stat-found: #15803d;
+  --stat-not-found: #a16207;
+  --stat-errors: #b91c1c;
+
+  --key-reveal-border: rgba(184, 207, 0, 0.28);
+  --key-reveal-bg: rgba(184, 207, 0, 0.08);
+
+  --badge-active-border: rgba(22, 101, 52, 0.22);
+  --badge-active-bg: rgba(34, 197, 94, 0.12);
+  --badge-active-fg: #166534;
+  --badge-active-dot: #22c55e;
+
+  --btn-danger-hover-border: rgba(220, 38, 38, 0.35);
+  --btn-danger-hover-fg: #b91c1c;
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.1);
 }
 
 @theme inline {
@@ -32,17 +192,12 @@
   --font-display: var(--font-outfit), var(--font-plus-jakarta), sans-serif;
 }
 
-/* ── Base ── */
-
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-html {
-  color-scheme: dark;
-}
 
 body {
   min-height: 100dvh;
@@ -55,8 +210,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Typography ── */
-
 .font-display {
   font-family: var(--font-display);
   letter-spacing: -0.035em;
@@ -66,37 +219,35 @@ body {
   text-wrap: balance;
 }
 
-/* ── Backgrounds ── */
-
 .page-bg {
   background-color: var(--bg);
 }
 
-/* Subtle dot grid */
+.logo-badge {
+  background-color: var(--accent);
+  transition: background-color 0.15s ease;
+}
+
+.group:hover .logo-badge {
+  background-color: var(--accent-hover);
+}
+
 .dot-grid {
   background-image: radial-gradient(
-    rgba(255, 255, 255, 0.06) 1px,
+    var(--dot-grid-color) 1px,
     transparent 1px
   );
   background-size: 28px 28px;
 }
 
-/* Fade dot grid out vertically */
 .dot-grid-fade {
   mask-image: linear-gradient(to bottom, black 0%, black 30%, transparent 75%);
 }
 
-/* Glow orb */
 .glow-lime {
-  background: radial-gradient(
-    circle at center,
-    rgba(223, 255, 31, 0.12) 0%,
-    transparent 70%
-  );
+  background: var(--glow-lime);
   filter: blur(1px);
 }
-
-/* ── Surfaces ── */
 
 .card {
   background-color: var(--bg-subtle);
@@ -110,10 +261,13 @@ body {
   border-radius: 12px;
 }
 
-/* Terminal / code block */
+.card-hover-border:hover {
+  border-color: var(--card-hover-border);
+}
+
 .terminal {
-  background-color: #0d0f18;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--terminal-bg);
+  border: 1px solid var(--terminal-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -123,8 +277,8 @@ body {
   align-items: center;
   gap: 6px;
   padding: 11px 14px;
-  background-color: #111219;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: var(--terminal-header-bg);
+  border-bottom: 1px solid var(--terminal-header-border);
 }
 
 .terminal-dot {
@@ -149,16 +303,12 @@ body {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-/* ── Sidebar ── */
-
 .sidebar {
   width: 228px;
   flex-shrink: 0;
   background-color: var(--bg-subtle);
   border-right: 1px solid var(--border-subtle);
 }
-
-/* ── Interactive ── */
 
 .btn-primary {
   display: inline-flex;
@@ -196,9 +346,9 @@ body {
 }
 
 .btn-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: var(--btn-secondary-hover-border);
   color: var(--text);
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--btn-secondary-hover-bg);
 }
 
 .btn-ghost {
@@ -214,22 +364,18 @@ body {
 
 .btn-ghost:hover {
   color: var(--text);
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--btn-ghost-hover-bg);
 }
-
-/* ── Focus ── */
 
 .focus-visible-ring:focus-visible {
-  outline: 2px solid rgba(223, 255, 31, 0.55);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
-
-/* ── Skeleton ── */
 
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--skeleton-base);
   border-radius: 8px;
 }
 
@@ -241,13 +387,11 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.05),
+    var(--skeleton-shine),
     transparent
   );
   animation: shimmer 1.5s ease-in-out infinite;
 }
-
-/* ── Marquee ── */
 
 .marquee-track {
   display: flex;
@@ -261,8 +405,6 @@ body {
   }
 }
 
-/* ── Scrollbar ── */
-
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -271,11 +413,9 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
-
-/* ── Keyframes ── */
 
 @keyframes shimmer {
   100% {
@@ -284,8 +424,12 @@ body {
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes fade-up {
@@ -300,20 +444,30 @@ body {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
-/* ── Motion ── */
 
 @media (prefers-reduced-motion: no-preference) {
   .anim {
     animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  .anim-d1 { animation-delay: 0.06s; }
-  .anim-d2 { animation-delay: 0.12s; }
-  .anim-d3 { animation-delay: 0.18s; }
-  .anim-d4 { animation-delay: 0.24s; }
+  .anim-d1 {
+    animation-delay: 0.06s;
+  }
+  .anim-d2 {
+    animation-delay: 0.12s;
+  }
+  .anim-d3 {
+    animation-delay: 0.18s;
+  }
+  .anim-d4 {
+    animation-delay: 0.24s;
+  }
   .verify-result-reveal {
     animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }

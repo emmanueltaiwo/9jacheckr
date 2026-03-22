@@ -135,13 +135,16 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
       <div
         className="rounded-xl border px-4 py-3 text-[13px]"
         style={{
-          borderColor: 'rgba(251,191,36,0.25)',
-          background: 'rgba(251,191,36,0.07)',
-          color: 'rgb(253,230,138)',
+          borderColor: 'var(--callout-warning-border)',
+          background: 'var(--callout-warning-bg)',
+          color: 'var(--callout-warning-fg)',
         }}
       >
         Set{' '}
-        <span className="font-mono text-amber-200">
+        <span
+          className="font-mono"
+          style={{ color: 'var(--callout-warning-fg)' }}
+        >
           NEXT_PUBLIC_API_BASE_URL
         </span>{' '}
         in <span className="font-mono">.env.local</span>.
@@ -193,13 +196,16 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
       <div
         className="flex flex-col items-start gap-3 rounded-xl border px-4 py-4 text-[13px]"
         style={{
-          borderColor: 'rgba(251,191,36,0.25)',
-          background: 'rgba(251,191,36,0.07)',
-          color: 'rgb(253,230,138)',
+          borderColor: 'var(--callout-warning-border)',
+          background: 'var(--callout-warning-bg)',
+          color: 'var(--callout-warning-fg)',
         }}
       >
         <div className="flex items-start gap-2">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+          <AlertCircle
+            className="mt-0.5 h-4 w-4 shrink-0"
+            style={{ color: 'var(--callout-warning-icon)' }}
+          />
           {keyQuery.error instanceof Error
             ? keyQuery.error.message
             : 'Could not load key status.'}
@@ -207,7 +213,11 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
         <button
           type="button"
           onClick={() => void keyQuery.refetch()}
-          className="rounded-md border border-amber-400/40 px-3 py-1.5 text-[12px] font-medium text-amber-100 hover:bg-amber-500/10 focus-visible-ring"
+          className="rounded-md border px-3 py-1.5 text-[12px] font-medium transition-colors hover:bg-(--callout-warning-btn-hover-bg) focus-visible-ring"
+          style={{
+            borderColor: 'var(--callout-warning-btn-border)',
+            color: 'var(--callout-warning-btn-fg)',
+          }}
         >
           Retry
         </button>
@@ -275,17 +285,17 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             <StatBox
               label="Found"
               value={metrics.foundCount}
-              accent="rgb(134,239,172)"
+              accent="var(--stat-found)"
             />
             <StatBox
               label="Not found"
               value={metrics.notFoundCount}
-              accent="rgb(253,224,71)"
+              accent="var(--stat-not-found)"
             />
             <StatBox
               label="Errors"
               value={metrics.errorCount}
-              accent="rgb(252,165,165)"
+              accent="var(--stat-errors)"
             />
           </div>
           <p className="mt-3 text-[12px]" style={{ color: 'var(--text-3)' }}>
@@ -303,8 +313,14 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
           }}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex min-w-0 items-start gap-2 text-[13px] text-amber-200/90">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <div
+              className="flex min-w-0 items-start gap-2 text-[13px]"
+              style={{ color: 'var(--callout-warning-fg)' }}
+            >
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 shrink-0"
+                style={{ color: 'var(--callout-warning-icon)' }}
+              />
               <span>
                 {metricsQuery.error instanceof Error
                   ? metricsQuery.error.message
@@ -315,7 +331,11 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
               type="button"
               onClick={() => void metricsQuery.refetch()}
               disabled={metricsQuery.isFetching}
-              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-amber-400/35 px-3 text-[12px] font-medium text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50 focus-visible-ring"
+              className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border px-3 text-[12px] font-medium transition-colors hover:bg-(--callout-warning-btn-hover-bg) disabled:opacity-50 focus-visible-ring"
+              style={{
+                borderColor: 'var(--callout-warning-btn-border)',
+                color: 'var(--callout-warning-btn-fg)',
+              }}
               aria-label="Retry loading usage metrics"
             >
               <RefreshCw
@@ -375,23 +395,7 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
                 type="button"
                 disabled={busy}
                 onClick={() => revokeMutation.mutate()}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-[12px] font-medium transition-colors disabled:opacity-40 focus-visible-ring"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    'rgba(239,68,68,0.4)';
-                  (e.currentTarget as HTMLButtonElement).style.color =
-                    'rgb(252,165,165)';
-                  (e.currentTarget as HTMLButtonElement).style.background =
-                    'rgba(239,68,68,0.08)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor =
-                    'var(--border)';
-                  (e.currentTarget as HTMLButtonElement).style.color =
-                    'var(--text-2)';
-                  (e.currentTarget as HTMLButtonElement).style.background = '';
-                }}
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border) px-3 text-[12px] font-medium text-(--text-2) transition-colors hover:border-(--btn-danger-hover-border) hover:bg-(--btn-danger-hover-bg) hover:text-(--btn-danger-hover-fg) disabled:opacity-40 focus-visible-ring"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Revoke
@@ -420,12 +424,15 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             <div
               className="flex items-start gap-2 rounded-lg border px-3 py-3 text-[13px]"
               style={{
-                borderColor: 'rgba(251,191,36,0.25)',
-                background: 'rgba(251,191,36,0.07)',
-                color: 'rgb(253,230,138)',
+                borderColor: 'var(--callout-warning-border)',
+                background: 'var(--callout-warning-bg)',
+                color: 'var(--callout-warning-fg)',
               }}
             >
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <AlertCircle
+                className="mt-0.5 h-4 w-4 shrink-0"
+                style={{ color: 'var(--callout-warning-icon)' }}
+              />
               {msg}
             </div>
           ) : null}
@@ -434,13 +441,13 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
             <div
               className="rounded-lg border p-4"
               style={{
-                borderColor: 'rgba(223,255,31,0.2)',
-                background: 'rgba(223,255,31,0.04)',
+                borderColor: 'var(--key-reveal-border)',
+                background: 'var(--key-reveal-bg)',
               }}
             >
               <p
                 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em]"
-                style={{ color: '#dfff1f' }}
+                style={{ color: 'var(--accent)' }}
               >
                 Copy your key, shown only once
               </p>
@@ -482,12 +489,15 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
                   style={{
-                    borderColor: 'rgba(134,239,172,0.2)',
-                    background: 'rgba(134,239,172,0.08)',
-                    color: 'rgb(134,239,172)',
+                    borderColor: 'var(--badge-active-border)',
+                    background: 'var(--badge-active-bg)',
+                    color: 'var(--badge-active-fg)',
                   }}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ background: 'var(--badge-active-dot)' }}
+                  />
                   Active
                 </span>
               </div>

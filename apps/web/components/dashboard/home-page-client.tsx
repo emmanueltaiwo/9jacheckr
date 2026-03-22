@@ -37,7 +37,7 @@ export function HomePageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
           NAFDAC registration number.{' '}
           <Link
             href="/verify"
-            className="font-medium text-[#dfff1f] underline underline-offset-3 hover:text-[#eaff5e]"
+            className="font-medium text-(--accent) underline underline-offset-3 transition-colors hover:text-(--accent-hover)"
           >
             Or use the public lookup
           </Link>{' '}
@@ -53,7 +53,7 @@ export function HomePageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
                   Go to{' '}
                   <Link
                     href="/dashboard/keys"
-                    className="font-medium text-[#dfff1f] underline underline-offset-3 hover:text-[#eaff5e]"
+                    className="font-medium text-(--accent) underline underline-offset-3 transition-colors hover:text-(--accent-hover)"
                   >
                     API Keys
                   </Link>{' '}
@@ -103,7 +103,7 @@ export function HomePageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
 
         <Link
           href="/dashboard/keys"
-          className="group mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-[#dfff1f] hover:text-[#eaff5e]"
+          className="group mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium text-(--accent) transition-colors hover:text-(--accent-hover)"
         >
           Create API key
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

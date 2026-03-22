@@ -170,7 +170,7 @@ export function VerifyLookupClient() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-xl bg-[#dfff1f] px-6 text-[15px] font-semibold text-black transition hover:bg-[#eaff5e] focus-visible-ring disabled:cursor-not-allowed disabled:opacity-45 sm:h-auto sm:min-w-[148px]"
+            className="inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-6 text-[15px] font-semibold text-black transition hover:bg-[var(--accent-hover)] focus-visible-ring disabled:cursor-not-allowed disabled:opacity-45 sm:h-auto sm:min-w-[148px]"
           >
             {loading ? (
               <>
@@ -192,7 +192,7 @@ export function VerifyLookupClient() {
           Examples:{' '}
           <button
             type="button"
-            className="font-mono text-[12px] text-(--text-2) underline decoration-(--border) underline-offset-4 transition hover:text-[#dfff1f]"
+            className="font-mono text-[12px] text-(--text-2) underline decoration-(--border) underline-offset-4 transition hover:text-[var(--accent)]"
             onClick={() => setValue('01-5713')}
           >
             01-5713
@@ -251,8 +251,7 @@ export function VerifyLookupClient() {
               className="border-b px-5 py-6 sm:px-8 sm:py-8"
               style={{
                 borderColor: 'var(--border-subtle)',
-                background:
-                  'linear-gradient(135deg, rgba(223,255,31,0.07) 0%, transparent 55%)',
+                background: 'var(--verify-result-header-gradient)',
               }}
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -261,8 +260,8 @@ export function VerifyLookupClient() {
                     <span
                       className="flex h-9 w-9 items-center justify-center rounded-full"
                       style={{
-                        background: 'rgba(223,255,31,0.15)',
-                        color: '#dfff1f',
+                        background: 'var(--get-badge-bg)',
+                        color: 'var(--get-badge-fg)',
                       }}
                     >
                       <CheckCircle2 className="h-5 w-5" strokeWidth={2} />
@@ -282,11 +281,12 @@ export function VerifyLookupClient() {
                   className="flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-[12px] text-(--text-2)"
                   style={{
                     borderColor: 'var(--border-subtle)',
-                    background: 'rgba(0,0,0,0.25)',
+                    background: 'var(--verify-meta-pill-bg)',
                   }}
                 >
                   <ShieldCheck
-                    className="h-4 w-4 shrink-0 text-[#dfff1f]/90"
+                    className="h-4 w-4 shrink-0 opacity-90"
+                    style={{ color: 'var(--accent)' }}
                     strokeWidth={2}
                   />
                   NAFDAC register
@@ -368,7 +368,7 @@ export function VerifyLookupClient() {
             Building an app?{' '}
             <Link
               href="/login?next=/dashboard"
-              className="font-medium text-[#dfff1f] underline underline-offset-4 hover:text-[#eaff5e]"
+              className="font-medium text-[var(--accent)] underline underline-offset-4 transition-colors hover:text-[var(--accent-hover)]"
             >
               Get an API key
             </Link>{' '}

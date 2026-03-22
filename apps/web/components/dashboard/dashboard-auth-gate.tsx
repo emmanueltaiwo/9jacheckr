@@ -22,26 +22,35 @@ export function DashboardAuthGate({ children }: { children: React.ReactNode }) {
         <div
           className="max-w-sm rounded-xl border p-6 text-[14px]"
           style={{
-            borderColor: 'rgba(251,191,36,0.25)',
-            background: 'rgba(251,191,36,0.06)',
-            color: 'rgb(253,230,138)',
+            borderColor: 'var(--callout-warning-border)',
+            background: 'var(--callout-warning-bg)',
+            color: 'var(--callout-warning-fg)',
           }}
         >
           <p className="font-semibold">Environment not configured</p>
           <p
             className="mt-2 text-[13px] leading-relaxed"
-            style={{ color: 'rgb(253,230,138,0.8)' }}
+            style={{ color: 'var(--callout-warning-muted)' }}
           >
             Set{' '}
-            <code className="font-mono text-amber-300">
+            <code
+              className="font-mono"
+              style={{ color: 'var(--callout-warning-fg)' }}
+            >
               NEXT_PUBLIC_API_BASE_URL
             </code>{' '}
             in{' '}
-            <code className="font-mono text-amber-300">
+            <code
+              className="font-mono"
+              style={{ color: 'var(--callout-warning-fg)' }}
+            >
               apps/web/.env.local
             </code>{' '}
             to your API origin - e.g.{' '}
-            <code className="font-mono text-amber-300">
+            <code
+              className="font-mono"
+              style={{ color: 'var(--callout-warning-fg)' }}
+            >
               http://localhost:4000
             </code>
             .

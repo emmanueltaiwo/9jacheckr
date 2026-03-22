@@ -24,11 +24,11 @@ export function CopyFieldButton({
       style={{
         borderColor: 'var(--border)',
         background: 'var(--bg-overlay)',
-        color: done ? '#dfff1f' : 'var(--text-3)',
+        color: done ? 'var(--accent)' : 'var(--text-3)',
       }}
     >
       {done ? (
-        <Check className="h-3 w-3" style={{ color: '#dfff1f' }} />
+        <Check className="h-3 w-3" style={{ color: 'var(--accent)' }} />
       ) : (
         <Copy className="h-3 w-3" />
       )}

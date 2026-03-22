@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { MarketingNavActions } from '@/components/marketing-nav-actions';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function SiteNav() {
   return (
@@ -7,7 +8,7 @@ export function SiteNav() {
       className="sticky top-0 z-50 border-b backdrop-blur-xl"
       style={{
         borderColor: 'var(--border-subtle)',
-        background: 'rgba(6,6,6,0.85)',
+        background: 'var(--header-surface)',
       }}
     >
       <div className="mx-auto flex h-14 max-w-[1120px] min-w-0 items-center justify-between gap-3 px-5 sm:px-6">
@@ -16,7 +17,7 @@ export function SiteNav() {
             href="/"
             className="group flex items-center gap-2 text-[14px] font-semibold text-foreground"
           >
-            <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[5px] bg-[#dfff1f] text-[12px] font-bold text-black transition group-hover:bg-[#eaff5e]">
+            <span className="logo-badge flex h-[26px] w-[26px] items-center justify-center rounded-[5px] text-[12px] font-bold text-black">
               9
             </span>
             9ja Checkr
@@ -50,6 +51,7 @@ export function SiteNav() {
           >
             Verify
           </Link>
+          <ThemeToggle />
           <MarketingNavActions />
         </div>
       </div>

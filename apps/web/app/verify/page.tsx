@@ -34,7 +34,10 @@ export default function VerifyPage() {
                 background: 'var(--bg-subtle)',
               }}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#dfff1f]" />
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: 'var(--accent)' }}
+              />
               Free · no sign-in
             </span>
           </div>
