@@ -48,7 +48,8 @@ export default async function BotBillingSuccessPage({
           {viaTelegram ? (
             <>
               If Paystack confirmed your subscription, Bot Pro should activate
-              shortly.               Open the bot and run <code className="font-mono text-[14px]">/status</code> to
+              shortly. Open the bot and run{' '}
+              <code className="font-mono text-[14px]">/status</code> to
               confirm your plan, total lookups, and today’s usage — limits refresh on the next check.
             </>
           ) : (
