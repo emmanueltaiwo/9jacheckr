@@ -49,7 +49,7 @@ export function registerPaymentsCommand(bot: Telegraf, apiBaseUrl: string) {
         [
           '<b>Bot Pro payments</b>',
           '',
-          'No recorded payments yet. Successful Paystack charges appear here after webhook processing.',
+          'No recorded payments yet. Successful Paystack charges appear.',
           '',
           'Use /upgrade to subscribe.',
         ].join('\n'),
