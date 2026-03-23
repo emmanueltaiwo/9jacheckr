@@ -31,8 +31,12 @@ export async function getBillingAccountController(req: Request, res: Response) {
     plan,
     monthlyUsed,
     monthlyLimit,
-    monthlyVerifyUsed: usageBreakdown.verify,
-    monthlySearchUsed: usageBreakdown.search,
+    ...(plan === 'pro_api'
+      ? {
+          monthlyVerifyUsed: usageBreakdown.verify,
+          monthlySearchUsed: usageBreakdown.search,
+        }
+      : {}),
     hasCustomerProfile,
     subscription: null as null | {
       paystackStatus: string | null;

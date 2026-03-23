@@ -21,8 +21,12 @@ export async function getBillingStatusController(req: Request, res: Response) {
       plan,
       monthlyUsed,
       monthlyLimit,
-      monthlyVerifyUsed: breakdown.verify,
-      monthlySearchUsed: breakdown.search,
+      ...(plan === 'pro_api'
+        ? {
+            monthlyVerifyUsed: breakdown.verify,
+            monthlySearchUsed: breakdown.search,
+          }
+        : {}),
     },
   });
 }

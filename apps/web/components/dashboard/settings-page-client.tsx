@@ -21,8 +21,8 @@ type BillingAccountJson = {
     plan: string;
     monthlyUsed: number;
     monthlyLimit: number;
-    monthlyVerifyUsed: number;
-    monthlySearchUsed: number;
+    monthlyVerifyUsed?: number;
+    monthlySearchUsed?: number;
     hasCustomerProfile: boolean;
     subscription: null | {
       paystackStatus: string | null;
@@ -305,7 +305,9 @@ export function SettingsPageClient({ apiBaseUrl }: { apiBaseUrl: string }) {
                     / {account.monthlyLimit.toLocaleString()}
                   </span>
                 </p>
-                {isPro ? (
+                {isPro &&
+                typeof account.monthlyVerifyUsed === 'number' &&
+                typeof account.monthlySearchUsed === 'number' ? (
                   <p className="mt-1.5 text-[12px] text-(--text-3)">
                     This month:{' '}
                     <span className="tabular-nums text-(--text-2)">

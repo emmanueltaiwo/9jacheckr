@@ -435,7 +435,9 @@ export function ApiKeySection({ apiBaseUrl }: { apiBaseUrl: string }) {
                   / {billing.monthlyLimit.toLocaleString()}
                 </span>
               </p>
-              {isPro ? (
+              {isPro &&
+              typeof billing.monthlyVerifyUsed === 'number' &&
+              typeof billing.monthlySearchUsed === 'number' ? (
                 <p
                   className="mt-1.5 text-[12px]"
                   style={{ color: 'var(--text-3)' }}
