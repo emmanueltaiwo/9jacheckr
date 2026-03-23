@@ -16,7 +16,7 @@ Express API: NAFDAC verify, Telegram bot hooks, Better Auth (Google), API keys i
 
 **Plans / errors:** API Free vs Pro — monthly **usage** cap **`billingConstants.ts`**: Free **300**, Pro **50,000** (₦10k/mo via Paystack plan). Usage = verify rows (single + batch, incl. not-found) **plus** successful **`GET /api/products/search`** responses; metrics, rate limits, multiple keys. On **Free**, only the **primary** (oldest) API key works for `/api/verify` and related routes; extra keys get **403** `KEY_PLAN_DISABLED`. Same rule for **dashboard** `POST /api/keys/create` (rotate) and `DELETE /api/keys/key/:id` (revoke) — non-primary keys cannot be rotated or revoked until Pro (`Revoke all` still revokes every key). Bot Free vs Pro (daily cap). Stable `code` values for clients: `PLAN_QUOTA_EXCEEDED`, `METRICS_NOT_AVAILABLE`, `FEATURE_REQUIRES_PRO`, `KEY_PLAN_DISABLED`, `BOT_DAILY_LIMIT`, `KEY_LIMIT`. Pro-only: `POST /api/verify/batch`, `GET /api/products/search`.
 
-On connect, the server **drops** legacy index `apikeys.userId_1` if present, then runs `syncIndexes` so Pro users can have multiple keys. If that fails (permissions), drop it manually: `db.apikeys.dropIndex("userId_1")`.
+**Health:** `GET /health` — process up (**800 req / 15 min / IP**). `GET /health/ready` — MongoDB `ping`; **503** if down (**120 req / 15 min / IP**).
 
 Google redirect URI: `{BETTER_AUTH_URL}/api/auth/callback/google`
 

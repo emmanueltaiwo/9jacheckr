@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
-import { connectMongo, disconnectMongo } from './db/mongo.js';
+import { checkMongoHealth, connectMongo, disconnectMongo } from './db/mongo.js';
 import { closeAuthMongo, getAuth } from './auth/auth.js';
 import verifyNafdacRouter from './routes/verifyNafdacRouter.js';
 import { botRouter } from './routes/botRouter.js';
@@ -16,6 +16,8 @@ import { errorHandler } from './middleware/errorHandler.js';
 import {
   botRoutesRateLimiter,
   dashboardKeysRateLimiter,
+  healthRateLimiter,
+  healthReadyRateLimiter,
   publicVerifyRateLimiter,
 } from './middleware/rateLimiter.js';
 import { billingWebhookController } from './controllers/billingWebhookController.js';
@@ -60,8 +62,25 @@ async function main() {
 
   app.use(express.json({ limit: '1mb' }));
 
-  app.get('/health', (_req, res) => {
+  app.get('/health', healthRateLimiter, (_req, res) => {
     res.status(200).json({ ok: true, service: '9ja-checkr-api' });
+  });
+
+  app.get('/health/ready', healthReadyRateLimiter, async (_req, res) => {
+    const dbOk = await checkMongoHealth();
+    if (!dbOk) {
+      res.status(503).json({
+        ok: false,
+        service: '9ja-checkr-api',
+        database: 'unavailable',
+      });
+      return;
+    }
+    res.status(200).json({
+      ok: true,
+      service: '9ja-checkr-api',
+      database: 'connected',
+    });
   });
 
   app.use('/api', requireApiAccess);

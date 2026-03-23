@@ -37,3 +37,21 @@ export const publicVerifyRateLimiter = rateLimit({
   legacyHeaders: false,
   message: limitBody,
 });
+
+/** `GET /health` — cheap; high ceiling so probes and monitors rarely hit it. */
+export const healthRateLimiter = rateLimit({
+  windowMs: window15m,
+  limit: 800,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: limitBody,
+});
+
+/** `GET /health/ready` runs a DB ping — tighter cap per IP. */
+export const healthReadyRateLimiter = rateLimit({
+  windowMs: window15m,
+  limit: 120,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: limitBody,
+});

@@ -24,9 +24,6 @@ export function SiteNav() {
           </Link>
 
           <nav className="hidden items-center gap-0.5 md:flex">
-            <Link href="/#features" className="btn-ghost">
-              Features
-            </Link>
             <Link href="/verify" className="btn-ghost">
               Verify
             </Link>
@@ -47,6 +44,14 @@ export function SiteNav() {
             >
               Telegram
             </a>
+            <a
+              href="https://status.9jacheckr.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+            >
+              Status
+            </a>
           </nav>
         </div>
 
@@ -57,6 +62,14 @@ export function SiteNav() {
           >
             Verify
           </Link>
+          <a
+            href="https://status.9jacheckr.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ghost h-8 md:hidden! focus-visible-ring"
+          >
+            Status
+          </a>
           <ThemeToggle />
           <MarketingNavActions />
         </div>
