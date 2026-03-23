@@ -38,7 +38,7 @@ export function registerStatusCommand(bot: Telegraf, apiBaseUrl: string) {
 
     const usageLines = [
       `<b>Total lookups (all time):</b> ${r.totalVerifyCount}`,
-      `<b>Today (UTC):</b> ${r.dailyUsed} lookup${r.dailyUsed === 1 ? '' : 's'}`,
+      `<b>Today (UTC):</b> ${r.dailyUsed} lookup${r.dailyUsed === 1 ? '' : 's'} — text: ${r.dailyTextUsed}, photo: ${r.dailyImageUsed}`,
     ];
 
     if (r.plan === 'free') {

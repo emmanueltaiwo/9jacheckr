@@ -4,7 +4,10 @@ const botDailyUsageSchema = new Schema(
   {
     telegramId: { type: String, required: true, index: true },
     dateKey: { type: String, required: true },
+    /** Total bot lookups today (text + image) — used for free-tier daily cap */
     verifyCount: { type: Number, default: 0 },
+    textVerifyCount: { type: Number, default: 0 },
+    imageVerifyCount: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

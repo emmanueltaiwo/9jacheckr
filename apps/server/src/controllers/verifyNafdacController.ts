@@ -15,6 +15,7 @@ import {
 import {
   assertBotDailyQuotaAllows,
   incrementBotDailyVerify,
+  type BotDailyVerifyChannel,
 } from '../services/botPlanService.js';
 import { logger } from '../utils/logger.js';
 
@@ -42,9 +43,18 @@ export async function respondAfterProductLookup(
     botTelegram: BotTelegramPayload | undefined;
     keyUserId: string | undefined;
     notFoundNafdac?: string;
+    /** Bot daily usage breakdown; defaults to text (GET /verify from bot). */
+    botVerifyChannel?: BotDailyVerifyChannel;
   },
 ): Promise<void> {
-  const { product, isBot, botTelegram, keyUserId, notFoundNafdac } = ctx;
+  const {
+    product,
+    isBot,
+    botTelegram,
+    keyUserId,
+    notFoundNafdac,
+    botVerifyChannel = 'text',
+  } = ctx;
   if (!product) {
     if (isBot) {
       await recordBotVerifyMetrics(botTelegram, 'not_found').catch(() => {});
@@ -54,7 +64,9 @@ export async function respondAfterProductLookup(
       await incrementMonthlyApiVerify(keyUserId).catch(() => {});
     }
     if (isBot && botTelegram?.id) {
-      await incrementBotDailyVerify(botTelegram.id).catch(() => {});
+      await incrementBotDailyVerify(botTelegram.id, botVerifyChannel).catch(
+        () => {},
+      );
     }
     const body: VerifyApiErrorBody = {
       ok: false,
@@ -74,7 +86,9 @@ export async function respondAfterProductLookup(
     await incrementMonthlyApiVerify(keyUserId).catch(() => {});
   }
   if (isBot && botTelegram?.id) {
-    await incrementBotDailyVerify(botTelegram.id).catch(() => {});
+    await incrementBotDailyVerify(botTelegram.id, botVerifyChannel).catch(
+      () => {},
+    );
   }
   const body: VerifyApiSuccess = { ok: true, product };
   res.status(200).json(body);
@@ -138,6 +152,7 @@ export async function verifyNafdacController(
       isBot,
       botTelegram,
       keyUserId,
+      botVerifyChannel: 'text',
     });
   } catch (err) {
     if (isBot) {

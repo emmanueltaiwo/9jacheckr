@@ -9,6 +9,10 @@ export type BotStatusSnapshot = {
   plan: ResolvedBotPlan;
   /** Lookups completed today (UTC) — tracked for all users; only free tier is capped */
   dailyUsed: number;
+  /** Today (UTC): /verify-style text lookups */
+  dailyTextUsed: number;
+  /** Today (UTC): photo verify lookups */
+  dailyImageUsed: number;
   dailyLimit: number;
   /** All-time bot lookups recorded for this Telegram user */
   totalVerifyCount: number;
@@ -63,11 +67,25 @@ export async function getBotStatusSnapshot(
     }
   }
 
-  const dailyUsed = usageDoc?.verifyCount ?? 0;
+  const verifyCount = usageDoc?.verifyCount ?? 0;
+  const text = usageDoc?.textVerifyCount ?? 0;
+  const image = usageDoc?.imageVerifyCount ?? 0;
+  const unattributed = Math.max(0, verifyCount - text - image);
+  const dailyUsed = verifyCount;
+  const dailyTextUsed = text + unattributed;
+  const dailyImageUsed = image;
   const dailyLimit = BOT_FREE_DAILY_LIMIT;
   const totalVerifyCount = profile?.verifyCount ?? 0;
 
-  return { plan, dailyUsed, dailyLimit, periodEnd, totalVerifyCount };
+  return {
+    plan,
+    dailyUsed,
+    dailyTextUsed,
+    dailyImageUsed,
+    dailyLimit,
+    periodEnd,
+    totalVerifyCount,
+  };
 }
 
 export async function resolveBotPlan(
@@ -112,14 +130,21 @@ export async function assertBotDailyQuotaAllows(
   return { ok: true, plan, used, limit };
 }
 
+export type BotDailyVerifyChannel = 'text' | 'image';
+
 /** Counts every completed bot lookup per UTC day (for /status). Quota still enforced only for free tier. */
 export async function incrementBotDailyVerify(
   telegramId: string,
+  channel: BotDailyVerifyChannel,
 ): Promise<void> {
   const dateKey = currentUtcDayKey();
+  const inc =
+    channel === 'image'
+      ? { verifyCount: 1, imageVerifyCount: 1 }
+      : { verifyCount: 1, textVerifyCount: 1 };
   await BotDailyUsageModel.findOneAndUpdate(
     { telegramId, dateKey },
-    { $inc: { verifyCount: 1 }, $setOnInsert: { telegramId, dateKey } },
+    { $inc: inc, $setOnInsert: { telegramId, dateKey } },
     { upsert: true },
   );
 }

@@ -116,6 +116,7 @@ export async function botVerifyImageController(
           botTelegram,
           keyUserId: undefined,
           notFoundNafdac: nafdac,
+          botVerifyChannel: 'image',
         });
         return;
       }
@@ -162,6 +163,7 @@ export async function botVerifyImageController(
       botTelegram,
       keyUserId: undefined,
       notFoundNafdac: nafdac,
+      botVerifyChannel: 'image',
     });
   } catch (err) {
     await recordBotVerifyMetrics(botTelegram, 'failed').catch(() => {});

@@ -225,6 +225,8 @@ export type BotStatusResponse =
       ok: true;
       plan: 'free' | 'pro_bot';
       dailyUsed: number;
+      dailyTextUsed: number;
+      dailyImageUsed: number;
       dailyLimit: number;
       periodEnd: string | null;
       totalVerifyCount: number;
@@ -265,6 +267,15 @@ export async function fetchBotStatus(
         typeof d.dailyUsed === 'number' && Number.isFinite(d.dailyUsed)
           ? d.dailyUsed
           : 0;
+      const dailyTextUsed =
+        typeof d.dailyTextUsed === 'number' && Number.isFinite(d.dailyTextUsed)
+          ? d.dailyTextUsed
+          : dailyUsed;
+      const dailyImageUsed =
+        typeof d.dailyImageUsed === 'number' &&
+        Number.isFinite(d.dailyImageUsed)
+          ? d.dailyImageUsed
+          : 0;
       const dailyLimit =
         typeof d.dailyLimit === 'number' && Number.isFinite(d.dailyLimit)
           ? d.dailyLimit
@@ -294,6 +305,8 @@ export async function fetchBotStatus(
         ok: true,
         plan,
         dailyUsed,
+        dailyTextUsed,
+        dailyImageUsed,
         dailyLimit,
         periodEnd,
         totalVerifyCount,
