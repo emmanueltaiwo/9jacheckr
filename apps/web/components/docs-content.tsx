@@ -21,6 +21,7 @@ const SECTIONS = [
       { id: 'telegram-photo', label: 'Photo verify (Telegram)' },
     ],
   },
+  { id: 'sdk', label: 'JavaScript SDK' },
   { id: 'rate-limits', label: 'Rate limits' },
   { id: 'errors', label: 'Error codes' },
   { id: 'examples', label: 'Code examples' },
@@ -356,14 +357,6 @@ function DocsSidebar({ active }: { active: string }) {
       }}
     >
       <div className="px-4 py-8">
-        {/* Brand mark inside sidebar */}
-        <Link href="/" className="mb-6 flex items-center gap-2 text-foreground">
-          <span className="logo-badge flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-bold text-black">
-            9
-          </span>
-          <span className="text-[12px] font-semibold">API Reference</span>
-        </Link>
-
         <p
           className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em]"
           style={{ color: 'var(--text-3)' }}
@@ -895,6 +888,112 @@ export function DocsContent() {
                 number as text, or direct them to the bot for photo verify.
               </CalloutInfo>
             </div>
+          </section>
+
+          <Divider />
+
+          {/* ── JavaScript SDK ───────────────────────────────── */}
+          <section id="sdk" className="scroll-mt-8 space-y-5">
+            <SectionHeading id="sdk">JavaScript SDK</SectionHeading>
+            <Paragraph>
+              Official <InlineCode>@9jacheckr/sdk</InlineCode> wraps the same
+              REST endpoints with typed results. Uses global{' '}
+              <InlineCode>fetch</InlineCode> (Node 18+). The client always talks
+              to <InlineCode>https://api.9jacheckr.xyz</InlineCode> — for a
+              local API, use the HTTP examples above.
+            </Paragraph>
+            <CalloutWarning>
+              Do not ship your API key in browser bundles. Use the SDK on the
+              server or in scripts only.
+            </CalloutWarning>
+            <CodeBlock title="Install" code={`npm install @9jacheckr/sdk`} />
+            <Paragraph>
+              All methods return a <strong>Promise</strong> that{' '}
+              <strong>resolves</strong> (no throw for API/network errors).
+              Branch on <InlineCode>result.ok</InlineCode>. Per-request timeout
+              is about 25 seconds.
+            </Paragraph>
+            <SubHeading id="sdk-client">CheckrClient</SubHeading>
+            <CodeBlock
+              title="ESM"
+              code={`import { CheckrClient } from '@9jacheckr/sdk';
+
+const client = new CheckrClient({
+  apiKey: process.env.CHECKR_API_KEY!,
+});
+
+const result = await client.verify('01-5713');
+
+if (result.ok) {
+  console.log(result.product.name, result.product.manufacturer);
+} else {
+  console.error(result.code, result.message);
+}`}
+            />
+            <div>
+              <p className="mb-3 text-[13px] font-semibold text-foreground">
+                Methods
+              </p>
+              <Table>
+                <ParamRow
+                  name="verify(nafdac)"
+                  type="Promise&lt;VerifyResult&gt;"
+                  description="GET /api/verify/:nafdac — Free or Pro. Empty input returns ok: false with INVALID_NAFDAC (request not sent)."
+                />
+                <ParamRow
+                  name="verifyBatch(numbers)"
+                  type="Promise&lt;BatchVerifyResult&gt;"
+                  description="POST /api/verify/batch — API Pro. Up to 40 strings per call; each row counts toward monthly usage. Empty list → INVALID_BODY."
+                />
+                <ParamRow
+                  name="searchProducts(query, { limit? })"
+                  type="Promise&lt;SearchResult&gt;"
+                  description="GET /api/products/search — API Pro. query ≥ 2 characters; limit 1–50 (default 20). Each successful response counts one monthly unit."
+                />
+              </Table>
+            </div>
+            <CodeBlock
+              title="Batch (API Pro)"
+              code={`const batch = await client.verifyBatch(['01-5713', '04-8127']);
+
+if (batch.ok) {
+  for (const row of batch.results) {
+    if (row.ok) console.log(row.nafdac, row.product.name);
+    else console.log(row.nafdac, row.code, row.message);
+  }
+} else {
+  console.error(batch.code, batch.message);
+}`}
+            />
+            <CodeBlock
+              title="Product search (API Pro)"
+              code={`const search = await client.searchProducts('sardine', {
+  limit: 10,
+});
+
+if (search.ok) {
+  for (const hit of search.results) {
+    console.log(hit.nafdac, hit.name, hit.manufacturer);
+  }
+} else {
+  console.error(search.code, search.message);
+}`}
+            />
+            <Paragraph>
+              Exported types include <InlineCode>Product</InlineCode>,{' '}
+              <InlineCode>VerifyResult</InlineCode>,{' '}
+              <InlineCode>BatchVerifyResult</InlineCode>,{' '}
+              <InlineCode>SearchResult</InlineCode>, and row/hit types. Extra
+              SDK-only <InlineCode>code</InlineCode> values include{' '}
+              <InlineCode>INVALID_RESPONSE</InlineCode>,{' '}
+              <InlineCode>TIMEOUT</InlineCode>, and{' '}
+              <InlineCode>NETWORK_ERROR</InlineCode>.
+            </Paragraph>
+            <CalloutInfo>
+              Source and README: monorepo path{' '}
+              <InlineCode>packages/sdk</InlineCode> (see npm package{' '}
+              <InlineCode>@9jacheckr/sdk</InlineCode>).
+            </CalloutInfo>
           </section>
 
           <Divider />

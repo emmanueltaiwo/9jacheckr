@@ -470,8 +470,8 @@ export default function Home() {
             </div>
             <a
               href="https://x.com/search?q=9jacheckr"
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
               className="hidden shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-colors hover:bg-(--nav-hover-bg) sm:inline-flex"
               style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
             >
