@@ -112,7 +112,7 @@ export function DashboardShell({
             style={{ borderColor: 'var(--border-subtle)' }}
           >
             <a
-              href="/#api"
+              href="/#developers"
               className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] font-medium text-(--text-2) transition-colors hover:bg-(--nav-hover-bg) hover:text-foreground"
             >
               <BookOpen

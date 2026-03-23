@@ -1,98 +1,75 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SiteNav } from '@/components/site-nav';
+import { SiteFooter } from '@/components/site-footer';
 import { VerifyLookupClient } from '@/components/verify-lookup-client';
 
 export const metadata: Metadata = {
-  title: 'Look up a NAFDAC number · 9ja Checkr',
+  title: 'Verify a product · 9ja Checkr',
   description:
-    'Free lookup: enter a NAFDAC registration number and see structured details from the public register (via 9ja Checkr). Independent service — not NAFDAC. No account required.',
+    'Free lookup: enter a NAFDAC registration number. We show details from the public registration channel (responses may be cached). No account required.',
 };
 
 export default function VerifyPage() {
   return (
-    <div className="page-bg min-h-dvh w-full min-w-0 overflow-x-hidden text-foreground">
+    <div
+      className="min-h-dvh w-full min-w-0 overflow-x-hidden"
+      style={{ background: 'var(--bg)', color: 'var(--text)' }}
+    >
       <SiteNav />
 
-      <main className="relative mx-auto max-w-[720px] min-w-0 px-5 pb-24 pt-14 sm:px-6 sm:pb-28 sm:pt-20">
+      <main className="relative mx-auto max-w-2xl min-w-0 px-4 pb-16 pt-32 sm:px-6 sm:pt-36">
         <div
-          className="dot-grid dot-grid-fade pointer-events-none absolute inset-0 left-1/2 max-w-[900px] -translate-x-1/2"
-          aria-hidden
-        />
-        <div
-          className="glow-lime pointer-events-none absolute -top-24 left-1/2 h-88 w-88 max-w-[min(100%,24rem)] -translate-x-1/2 opacity-80"
+          className="pointer-events-none absolute left-1/2 top-20 h-[400px] w-[600px] -translate-x-1/2 rounded-full opacity-[0.045] blur-[80px]"
+          style={{ background: 'var(--accent)' }}
           aria-hidden
         />
 
-        <div className="relative text-center sm:text-left">
-          <div className="anim inline-flex justify-center sm:justify-start">
-            <span
-              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px]"
+        <div className="relative">
+          <div className="mb-10 text-center">
+            <div
+              className="mb-5 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-medium"
               style={{
                 borderColor: 'var(--border)',
                 color: 'var(--text-2)',
-                background: 'var(--bg-subtle)',
+                background: 'var(--bg-raised)',
               }}
             >
               <span
-                className="h-1.5 w-1.5 rounded-full"
+                className="h-1.5 w-1.5 animate-pulse rounded-full"
                 style={{ background: 'var(--accent)' }}
+                aria-hidden
               />
-              Free · no sign-in
-            </span>
+              Free on this page · No sign-in
+            </div>
+
+            <h1 className="text-[clamp(2rem,6vw,3rem)] font-bold leading-[1.08] tracking-[-0.04em] text-foreground">
+              Is this product{' '}
+              <span style={{ color: 'var(--accent)' }}>on the register?</span>
+            </h1>
+
+            <p
+              className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed"
+              style={{ color: 'var(--text-2)' }}
+            >
+              Enter the number from the packaging. We show name, manufacturer,
+              and dates as returned from the public NAFDAC registration lookup
+              flow — results may be cached. Not an official government check;
+              see the{' '}
+              <a
+                href="/disclaimer"
+                className="font-medium text-(--accent) underline underline-offset-2 transition-colors hover:text-(--accent-hover)"
+              >
+                disclaimer
+              </a>
+              .
+            </p>
           </div>
 
-          <h1 className="anim anim-d1 mt-6 font-display text-[2rem] font-semibold leading-[1.08] tracking-[-0.035em] sm:text-[2.5rem]">
-            Is this product
-            <br className="hidden sm:block" />{' '}
-            <span className="text-(--text-2)">on the NAFDAC register?</span>
-          </h1>
-
-          <p
-            className="anim anim-d2 mx-auto mt-5 max-w-[460px] text-[16px] leading-[1.7] sm:mx-0"
-            style={{ color: 'var(--text-2)' }}
-          >
-            Enter the registration number from the pack.
-          </p>
-        </div>
-
-        <div className="anim anim-d3 relative mt-12 min-w-0">
           <VerifyLookupClient />
         </div>
-
-        <nav
-          className="anim anim-d4 relative mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t pt-10 text-[13px] sm:justify-start"
-          style={{
-            borderColor: 'var(--border-subtle)',
-            color: 'var(--text-3)',
-          }}
-          aria-label="Footer"
-        >
-          <Link href="/" className="transition-colors hover:text-foreground">
-            ← Home
-          </Link>
-          <Link
-            href="/#api"
-            className="transition-colors hover:text-foreground"
-          >
-            API docs
-          </Link>
-          <Link
-            href="/disclaimer"
-            className="transition-colors hover:text-foreground"
-          >
-            Disclaimer
-          </Link>
-          <a
-            href="https://t.me/NaijaCheckrBot"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-foreground"
-          >
-            Telegram bot
-          </a>
-        </nav>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

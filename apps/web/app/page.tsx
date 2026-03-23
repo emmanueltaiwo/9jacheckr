@@ -1,831 +1,676 @@
 import Link from 'next/link';
 import {
+  ArrowRight,
+  Bot,
+  Camera,
   Check,
-  CheckCircle2,
   Code2,
-  Globe,
+  HeartHandshake,
   ShieldCheck,
   Zap,
 } from 'lucide-react';
 import { SiteNav } from '@/components/site-nav';
-import { LandingHeroActions } from '@/components/landing-hero-actions';
-import { LandingFooterCta } from '@/components/landing-footer-cta';
-import { LandingCodeTabs } from '@/components/landing-code-tabs';
+import { SiteFooter } from '@/components/site-footer';
+import { LandingHeroVerify } from '@/components/landing-hero-verify';
 import { LandingPricingSection } from '@/components/landing-pricing-section';
-import { ProApiEndpointsDocs } from '@/components/pro-api-endpoints-docs';
-import { SUPPORT_MAILTO } from '@/lib/support';
+import { TweetWall } from '@/components/tweet-wall';
 
-const SUPPORT_PAYSTACK_URL = 'https://paystack.shop/pay/support9jacheckr';
-
-const CODES = [
-  'A4-8921',
+// Illustrative registration-style tokens (not claims about real products)
+const TICKER_ITEMS = [
   '01-5713',
-  'B2-4401',
-  '04-8122',
-  'C1-0098',
-  '08-2233',
-  'D5-6610',
-  '03-7712',
-  'E9-1200',
-  '06-3344',
-  'F3-5517',
-  '09-1120',
-];
-
-function Marquee() {
-  const strip = (key: string) => (
-    <span
-      className="flex shrink-0 items-center gap-10 px-6"
-      aria-hidden={key === 'b'}
-    >
-      {CODES.map((c) => (
-        <span
-          key={`${c}-${key}`}
-          className="font-mono text-[12px]"
-          style={{ color: 'var(--text-3)' }}
-        >
-          {c}
-        </span>
-      ))}
-    </span>
-  );
-  return (
-    <div
-      className="w-full min-w-0 max-w-full overflow-hidden border-y py-3.5"
-      style={{
-        borderColor: 'var(--border-subtle)',
-        background: 'var(--bg-subtle)',
-      }}
-    >
-      <div className="marquee-track">
-        {strip('a')}
-        {strip('b')}
-      </div>
-    </div>
-  );
-}
-
-function TerminalPreview() {
-  return (
-    <div className="terminal min-w-0 max-w-full shadow-2xl shadow-black/60">
-      <div className="terminal-header min-w-0">
-        <span
-          className="terminal-dot shrink-0"
-          style={{ background: '#ff5f57' }}
-        />
-        <span
-          className="terminal-dot shrink-0"
-          style={{ background: '#febc2e' }}
-        />
-        <span
-          className="terminal-dot shrink-0"
-          style={{ background: '#28c840' }}
-        />
-        <span
-          className="ml-3 min-w-0 flex-1 truncate font-mono text-[11px]"
-          style={{ color: 'var(--syn-comment)' }}
-        >
-          bash - 9ja-checkr
-        </span>
-      </div>
-
-      <div className="min-w-0 overflow-x-auto p-5 font-mono text-[13px] leading-relaxed">
-        <div className="flex min-w-0 gap-2.5">
-          <span
-            className="shrink-0"
-            style={{ color: 'var(--terminal-prompt)' }}
-          >
-            ›
-          </span>
-          <div className="min-w-0 wrap-break-word">
-            <span style={{ color: 'var(--syn-punct)' }}>curl </span>
-            <span style={{ color: 'var(--syn-str)' }}>
-              &quot;api.9jacheckr.xyz/api/verify/01-5713&quot;
-            </span>
-            <span style={{ color: 'var(--syn-punct)' }}> \</span>
-            <br />
-            <span style={{ color: 'var(--syn-punct)' }}>{'  '}-H </span>
-            <span style={{ color: 'var(--syn-str)' }}>
-              &quot;x-api-key: njc_sk_••••••••••••&quot;
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="my-4 flex items-center gap-2.5 border-t border-b py-3"
-          style={{ borderColor: 'var(--terminal-status-border)' }}
-        >
-          <CheckCircle2
-            className="h-4 w-4"
-            style={{ color: 'var(--status-ok)' }}
-            strokeWidth={2}
-          />
-          <span
-            className="text-[12px] font-semibold"
-            style={{ color: 'var(--status-ok)' }}
-          >
-            200 OK
-          </span>
-          <span className="text-[12px]" style={{ color: 'var(--syn-comment)' }}>
-            ·
-          </span>
-          <span className="text-[12px]" style={{ color: 'var(--syn-comment)' }}>
-            142ms
-          </span>
-        </div>
-
-        <div
-          className="min-w-0 space-y-0.5 overflow-x-auto rounded-lg p-4"
-          style={{
-            background: 'var(--terminal-json-bg)',
-            border: '1px solid var(--terminal-json-border)',
-          }}
-        >
-          <Line p="">
-            <Punc>{'{'}</Punc>
-          </Line>
-          <Line p="  ">
-            <Key>&quot;ok&quot;</Key>
-            <Punc>: </Punc>
-            <Bool>true</Bool>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="  ">
-            <Key>&quot;product&quot;</Key>
-            <Punc>: {'{'}</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;nafdac&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;01-5713&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;name&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;TITUS SARDINE IN VEGETABLE OIL&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;category&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;Food&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;source&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;Imported Product&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;manufacturer&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;UNIMER S.A&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;approvedDate&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;2025-07-30T00:00:00.000Z&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;expiryDate&quot;</Key>
-            <Punc>: </Punc>
-            <Str>&quot;2030-07-29T00:00:00.000Z&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="    ">
-            <Key>&quot;ingredients&quot;</Key>
-            <Punc>: [</Punc>
-          </Line>
-          <Line p="      ">
-            <Str>&quot;SARDINE&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="      ">
-            <Str>&quot;VEGETABLE OIL&quot;</Str>
-            <Punc>,</Punc>
-          </Line>
-          <Line p="      ">
-            <Str>&quot;SALT&quot;</Str>
-          </Line>
-          <Line p="    ">
-            <Punc>]</Punc>
-          </Line>
-          <Line p="  ">
-            <Punc>{'}'}</Punc>
-          </Line>
-          <Line p="">
-            <Punc>{'}'}</Punc>
-          </Line>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Line({ p, children }: { p: string; children: React.ReactNode }) {
-  return (
-    <div className="flex min-w-0">
-      <span
-        className="select-none shrink-0 whitespace-pre"
-        style={{ color: 'var(--syn-comment)' }}
-      >
-        {p}
-      </span>
-      <span className="min-w-0 wrap-break-word">{children}</span>
-    </div>
-  );
-}
-function Key({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: 'var(--syn-key)' }}>{children}</span>;
-}
-function Str({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: 'var(--syn-str)' }}>{children}</span>;
-}
-function Bool({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: 'var(--syn-bool)' }}>{children}</span>;
-}
-function Punc({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: 'var(--syn-punct)' }}>{children}</span>;
-}
-
-const FEATURES = [
-  {
-    icon: ShieldCheck,
-    title: 'Public register data',
-    body: 'We automate NAFDAC’s public lookup flow and return structured fields. Cached where helpful — confirm critical outcomes on official channels.',
-  },
-  {
-    icon: Zap,
-    title: 'One endpoint',
-    body: 'GET /api/verify/:nafdac. Pass the number from the label, receive structured JSON. Nothing else to learn.',
-  },
-  {
-    icon: Code2,
-    title: 'No scraping maintenance',
-    body: "We handle the brittle HTML layer so you don't. Your integration stays stable when the source site changes.",
-  },
-  {
-    icon: Globe,
-    title: 'Works everywhere',
-    body: 'Any language, any runtime. If you can make an HTTP request you can look up a registration in your app.',
-  },
+  'A1-5645',
+  '04-81234',
+  '01-5713',
+  'A1-5645',
+  '04-81234',
+  '01-5713',
+  'A1-5645',
+  '04-81234',
+  '01-5713',
+  'A1-5645',
+  '04-81234',
 ] as const;
 
 const STEPS = [
   {
-    n: '01',
-    title: 'Sign in with Google',
-    body: 'No forms to fill. One click and your account is ready.',
+    num: '01',
+    title: 'Find the number',
+    body: 'Look near the barcode or product name on the label — often formatted like 01-5713 or with a short letter prefix (e.g. A1-5645).',
   },
   {
-    n: '02',
-    title: 'Generate an API key',
-    body: 'Head to the dashboard, create a key, copy it. Takes ten seconds.',
+    num: '02',
+    title: 'Paste it above',
+    body: 'Type or paste the number and verify. On the website you do not need an account for a single lookup.',
   },
   {
-    n: '03',
-    title: 'Start looking up',
-    body: 'Pass the NAFDAC number in the path and your key as a header. Parse the JSON in your app.',
+    num: '03',
+    title: 'See the facts',
+    body: 'We show product name, manufacturer, and approval-related dates as returned from the public NAFDAC registration channel — see our disclaimer for limits.',
   },
 ] as const;
 
-export default async function Home() {
-  const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(
-    /\/$/,
-    '',
-  );
+const FEATURES = [
+  {
+    icon: ShieldCheck,
+    label: 'Official register channel',
+    body: 'Lookups use the same public NAFDAC registration flow people use online — not a separate proprietary database. We cache results server-side so repeat checks stay fast.',
+  },
+  {
+    icon: Zap,
+    label: 'Fast as typing',
+    body: 'Enter a number on the web and get a result without a full page reload. No sign-up required for the homepage lookup.',
+  },
+  {
+    icon: HeartHandshake,
+    label: 'Built for real workflows',
+    body: 'Useful for shoppers, pharmacies, importers, and teams who need a quick structured view of registration details.',
+  },
+  {
+    icon: Bot,
+    label: 'Telegram bot',
+    body: 'Text @NaijaCheckrBot the NAFDAC number for a lookup. Free tier has a small daily limit; Bot Pro removes the daily cap.',
+  },
+  {
+    icon: Camera,
+    label: 'Photo verify (Bot Pro)',
+    body: 'With Bot Pro, send a clear photo of the label; we read the text and try to extract the registration number. Not available on the public HTTP API.',
+  },
+  {
+    icon: Code2,
+    label: 'Developer API',
+    body: 'Create an API key in the dashboard — 300 combined verify calls per month on Free, higher limits plus batch verify and product search on API Pro.',
+  },
+] as const;
 
-  const curlSample = apiBase
-    ? `curl -sS "${apiBase}/api/verify/01-5713" \\\n  -H "x-api-key: njc_your_key_here"`
-    : `curl -sS "https://api.9jacheckr.xyz/api/verify/01-5713" \\\n  -H "x-api-key: njc_your_key_here"`;
+const STATS = [
+  {
+    value: '300',
+    label: 'free API calls / mo',
+    sub: 'verify lookups on the Free API tier',
+  },
+  {
+    value: 'Free',
+    label: 'web lookup',
+    sub: 'no account on this page',
+  },
+  {
+    value: 'Cache',
+    label: '+ live fetch',
+    sub: 'stored after lookup; then NAFDAC portal when needed',
+  },
+  {
+    value: '2',
+    label: 'ways to check',
+    sub: 'this site & Telegram bot',
+  },
+] as const;
 
-  const jsonSample = `{
-  "ok": true,
-  "product": {
-    "nafdac": "01-5713",
-    "name": "TITUS SARDINE IN VEGETABLE OIL",
-    "category": "Food",
-    "source": "Imported Product",
-    "manufacturer": "UNIMER S.A",
-    "approvedDate": "2025-07-30T00:00:00.000Z",
-    "expiryDate": "2030-07-29T00:00:00.000Z",
-    "ingredients": ["SARDINE", "VEGETABLE OIL", "SALT"]
-  }
-}`;
+export default function Home() {
+  const tickerDouble = [...TICKER_ITEMS, ...TICKER_ITEMS];
 
   return (
-    <div className="page-bg min-h-dvh w-full min-w-0 overflow-x-hidden text-foreground">
+    <div
+      className="min-h-dvh w-full min-w-0 overflow-x-hidden"
+      style={{ background: 'var(--bg)', color: 'var(--text)' }}
+    >
       <SiteNav />
 
-      <section className="relative mx-auto max-w-[1120px] min-w-0 overflow-x-clip px-5 pb-20 pt-16 sm:px-6 sm:pt-24 lg:pb-28 lg:pt-28">
+      {/* ═══════════════════════════════════════════════════════
+          HERO — full-viewport, centered, verify form as the star
+          ═══════════════════════════════════════════════════════ */}
+      <section className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
+        {/* Radial glow sitting behind the form */}
         <div
-          className="dot-grid dot-grid-fade pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.055] blur-[100px]"
+          style={{ background: 'var(--accent)' }}
           aria-hidden
         />
 
+        {/* Subtle dot grid */}
         <div
-          className="glow-lime pointer-events-none absolute -top-16 left-1/2 h-80 w-80 max-w-[min(100%,20rem)] -translate-x-1/2"
+          className="pointer-events-none absolute inset-0 dot-grid dot-grid-fade"
           aria-hidden
         />
 
-        <div className="relative grid min-w-0 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16">
-          <div className="min-w-0">
-            <div className="anim">
-              <span
-                className="inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px]"
-                style={{
-                  borderColor: 'var(--border)',
-                  color: 'var(--text-2)',
-                  background: 'var(--bg-subtle)',
-                }}
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ background: 'var(--accent)' }}
-                />
-                NAFDAC registration lookup API
-              </span>
-            </div>
-
-            <h1 className="anim anim-d1 mt-6 font-display text-[2.6rem] font-semibold leading-[1.06] sm:text-[3.2rem] lg:text-[3.5rem]">
-              Look up Nigerian
-              <br />
-              product registrations.
-              <br />
-              <span style={{ color: 'var(--text-2)' }}>Get JSON back.</span>
-            </h1>
-
-            <p
-              className="anim anim-d2 mt-6 max-w-[440px] text-[16px] leading-[1.75]"
-              style={{ color: 'var(--text-2)' }}
-            >
-              Send a NAFDAC number. Get back structured product details from the
-              public register — an independent developer service, not a
-              government API.{' '}
-              <Link
-                href="/disclaimer"
-                className="underline underline-offset-2 transition-colors hover:text-foreground"
-              >
-                Disclaimer
-              </Link>
-              .
-            </p>
-
-            <div className="anim anim-d3 mt-8">
-              <LandingHeroActions supportHref={SUPPORT_PAYSTACK_URL} />
-            </div>
-
-            <p
-              className="anim anim-d4 mt-5 text-[13px]"
-              style={{ color: 'var(--text-3)' }}
-            >
-              Prefer no code?{' '}
-              <Link
-                href="/verify"
-                className="underline underline-offset-3 transition-colors hover:text-(--text-2)"
-              >
-                Look up on the web
-              </Link>
-              {' · '}
-              <a
-                href="https://t.me/NaijaCheckrBot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline underline-offset-3 transition-colors hover:text-(--text-2)"
-              >
-                Telegram →
-              </a>
-            </p>
-          </div>
-
-          <div className="anim anim-d2 relative min-w-0 overflow-x-clip">
-            <div
-              className="pointer-events-none absolute -inset-8 rounded-2xl opacity-60 blur-2xl sm:-inset-8"
-              style={{
-                background: `radial-gradient(ellipse at center, var(--hero-orb-1), transparent 70%)`,
-              }}
+        <div className="relative w-full max-w-2xl text-center">
+          {/* Category pill */}
+          <div
+            className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-medium"
+            style={{
+              borderColor: 'var(--border)',
+              color: 'var(--text-2)',
+              background: 'var(--bg-raised)',
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 animate-pulse rounded-full"
+              style={{ background: 'var(--accent)' }}
               aria-hidden
             />
-            <div className="relative min-w-0">
-              <TerminalPreview />
-            </div>
+            Nigeria · NAFDAC registration lookup · Independent tool
           </div>
+
+          {/* Headline */}
+          <h1 className="text-[clamp(2.6rem,9vw,4.5rem)] font-bold leading-[1.06] tracking-[-0.04em]">
+            <span style={{ color: 'var(--text)' }}>Is this product </span>
+            <span
+              className="relative inline-block"
+              style={{ color: 'var(--accent)' }}
+            >
+              registered?
+              {/* Underline squiggle */}
+              <svg
+                aria-hidden
+                className="absolute -bottom-1 left-0 w-full"
+                viewBox="0 0 400 10"
+                preserveAspectRatio="none"
+                style={{ height: '6px', opacity: 0.5 }}
+              >
+                <path
+                  d="M0,6 Q50,2 100,6 T200,6 T300,6 T400,6"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  fill="none"
+                />
+              </svg>
+            </span>
+          </h1>
+
+          <p
+            className="mx-auto mt-5 max-w-md text-[16px] leading-relaxed sm:text-[17px]"
+            style={{ color: 'var(--text-2)' }}
+          >
+            Look up a NAFDAC registration number — name, manufacturer, and dates
+            as returned from the public register flow. Free on this page, no
+            sign-up.
+          </p>
+
+          {/* Verify form */}
+          <div className="mt-9 sm:mt-10">
+            <LandingHeroVerify />
+          </div>
+
+          <p className="mt-5 text-[12px]" style={{ color: 'var(--text-3)' }}>
+            Data from the official NAFDAC public register ·{' '}
+            <Link
+              href="/disclaimer"
+              className="underline underline-offset-2 transition-colors hover:text-(--text-2)"
+            >
+              not affiliated with NAFDAC
+            </Link>
+          </p>
+        </div>
+
+        {/* Scroll hint */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
+          <span
+            className="text-[11px] uppercase tracking-[0.18em]"
+            style={{ color: 'var(--text-3)' }}
+          >
+            Scroll
+          </span>
+          <div
+            className="h-8 w-[1px]"
+            style={{
+              background:
+                'linear-gradient(to bottom, var(--accent), transparent)',
+              opacity: 0.5,
+            }}
+            aria-hidden
+          />
         </div>
       </section>
 
-      <Marquee />
-
-      <section
-        id="features"
-        className="mx-auto max-w-[1120px] min-w-0 scroll-mt-20 px-5 py-20 sm:px-6 sm:py-28"
+      {/* ═══════════════════════════════════════════════════════
+          SCROLLING TICKER
+          ═══════════════════════════════════════════════════════ */}
+      <div
+        className="overflow-hidden border-y py-3.5"
+        style={{
+          borderColor: 'var(--border-subtle)',
+          background: 'var(--bg-subtle)',
+        }}
+        aria-hidden
       >
-        <div className="max-w-lg">
-          <p
-            className="font-mono text-[11px] uppercase tracking-[0.2em]"
-            style={{ color: 'var(--text-3)' }}
-          >
-            Why use it
-          </p>
-          <h2 className="mt-3 font-display text-[1.85rem] font-semibold sm:text-[2.1rem]">
-            Built for developers, not browsers
-          </h2>
-          <p
-            className="mt-3 text-[15px] leading-relaxed"
-            style={{ color: 'var(--text-2)' }}
-          >
-            Stop typing NAFDAC numbers into a government website by hand.
-            Integrate once, query forever.
-          </p>
-        </div>
-
-        <div className="mt-12 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map(({ icon: Icon, title, body }) => (
-            <div
-              key={title}
-              className="card card-hover-border group min-w-0 rounded-xl p-5 transition-colors"
+        <div className="ticker-track flex w-max items-center gap-8">
+          {tickerDouble.map((code, i) => (
+            <span
+              key={`${code}-${i}`}
+              className="shrink-0 font-mono text-[11px] tracking-widest"
+              style={{ color: 'var(--text-3)' }}
             >
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-lg border"
-                style={{
-                  borderColor: 'var(--border)',
-                  background: 'var(--bg-raised)',
-                  color: 'var(--text-2)',
-                }}
+              {code}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          STATS — large numbers, editorial feel
+          ═══════════════════════════════════════════════════════ */}
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-24">
+        <div className="grid grid-cols-2 gap-y-12 gap-x-8 sm:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.value} className="flex flex-col">
+              <span
+                className="text-[clamp(2.2rem,5vw,3rem)] font-bold leading-none tracking-tight"
+                style={{ color: 'var(--accent)' }}
               >
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
-              </div>
-              <h3 className="mt-4 text-[14px] font-semibold">{title}</h3>
-              <p
-                className="mt-2 text-[13px] leading-relaxed"
+                {s.value}
+              </span>
+              <span className="mt-2 text-[14px] font-medium text-foreground">
+                {s.label}
+              </span>
+              <span
+                className="mt-0.5 text-[12px]"
                 style={{ color: 'var(--text-3)' }}
               >
-                {body}
-              </p>
+                {s.sub}
+              </span>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════
+          HOW IT WORKS
+          ═══════════════════════════════════════════════════════ */}
       <section
-        className="border-y"
+        id="how-it-works"
+        className="relative border-t scroll-mt-24"
         style={{
           borderColor: 'var(--border-subtle)',
           background: 'var(--bg-subtle)',
         }}
       >
-        <div className="mx-auto max-w-[1120px] min-w-0 px-5 py-20 sm:px-6 sm:py-24">
-          <div className="max-w-lg min-w-0">
+        {/* Large decorative "?" in background */}
+        <div
+          className="pointer-events-none absolute right-0 top-0 select-none text-[clamp(12rem,25vw,22rem)] font-bold leading-none opacity-[0.03]"
+          style={{ color: 'var(--accent)', lineHeight: 1 }}
+          aria-hidden
+        >
+          ?
+        </div>
+
+        <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="mb-14">
             <p
-              className="font-mono text-[11px] uppercase tracking-[0.2em]"
-              style={{ color: 'var(--text-3)' }}
+              className="font-mono text-[11px] uppercase tracking-[0.25em]"
+              style={{ color: 'var(--accent)' }}
             >
-              Quick start
+              How it works
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-semibold sm:text-[2.1rem]">
-              Up and running in minutes
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground">
+              Three steps. Under ten seconds.
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-3">
-            {STEPS.map(({ n, title, body }) => (
-              <div key={n} className="relative pl-14">
-                <span
-                  className="absolute left-0 top-0 font-mono text-[2rem] font-bold leading-none"
-                  style={{ color: 'var(--border)' }}
-                >
-                  {n}
-                </span>
-                <h3 className="text-[15px] font-semibold">{title}</h3>
-                <p
-                  className="mt-2 text-[13px] leading-relaxed"
-                  style={{ color: 'var(--text-3)' }}
-                >
-                  {body}
-                </p>
+          <div className="grid gap-px" style={{ background: 'var(--border)' }}>
+            {STEPS.map((step, i) => (
+              <div
+                key={step.num}
+                className="flex gap-6 p-8 sm:p-10"
+                style={{ background: 'var(--bg-subtle)' }}
+              >
+                {/* Big step number */}
+                <div className="hidden shrink-0 items-start sm:flex">
+                  <span
+                    className="font-mono text-[clamp(2.5rem,5vw,3.5rem)] font-bold leading-none tracking-tighter"
+                    style={{
+                      color: i === 0 ? 'var(--accent)' : 'var(--text-3)',
+                      opacity: i === 0 ? 1 : 0.5,
+                    }}
+                  >
+                    {step.num}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span
+                    className="font-mono text-[11px] uppercase tracking-widest sm:hidden"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    {step.num}
+                  </span>
+                  <h3 className="text-[18px] font-bold text-foreground sm:text-[20px]">
+                    {step.title}
+                  </h3>
+                  <p
+                    className="mt-2 max-w-lg text-[14px] leading-relaxed sm:text-[15px]"
+                    style={{ color: 'var(--text-2)' }}
+                  >
+                    {step.body}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      <LandingPricingSection />
-
-      <section
-        id="api"
-        className="mx-auto max-w-[1120px] min-w-0 scroll-mt-20 px-5 py-20 sm:px-6 sm:py-28"
-      >
-        <div className="grid min-w-0 gap-12 lg:grid-cols-[minmax(0,auto)_minmax(0,1fr)] lg:gap-20">
-          <div className="max-w-xs min-w-0">
-            <p
-              className="font-mono text-[11px] uppercase tracking-[0.2em]"
-              style={{ color: 'var(--text-3)' }}
+          <div className="mt-10">
+            <Link
+              href="/verify"
+              className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[14px] font-medium transition-all hover:border-(--accent) hover:text-(--accent)"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
             >
-              API Reference
-            </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-semibold sm:text-[2.1rem]">
-              One endpoint. Simple contract.
-            </h2>
-            <p
-              className="mt-3 text-[14px] leading-relaxed"
-              style={{ color: 'var(--text-2)' }}
-            >
-              All requests go to the same path. The NAFDAC number lives in the
-              URL. Authentication is a single header.
-            </p>
-
-            <div
-              className="mt-8 space-y-2 rounded-xl border p-4 text-[13px]"
-              style={{
-                borderColor: 'var(--border-subtle)',
-                background: 'var(--bg-subtle)',
-              }}
-            >
-              {[
-                ['Method', 'GET'],
-                ['Auth', 'x-api-key header'],
-                ['Format', 'JSON'],
-                ['Errors', '4xx / 5xx with message'],
-              ].map(([k, v]) => (
-                <div key={k} className="flex items-center justify-between">
-                  <span style={{ color: 'var(--text-3)' }}>{k}</span>
-                  <span
-                    className="font-mono text-[12px]"
-                    style={{ color: 'var(--text-2)' }}
-                  >
-                    {v}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6">
-              <p className="text-[12px]" style={{ color: 'var(--text-3)' }}>
-                Endpoint
-              </p>
-              <div
-                className="mt-1.5 flex items-center gap-2 rounded-lg border px-3 py-2"
-                style={{
-                  borderColor: 'var(--border-subtle)',
-                  background: 'var(--bg-raised)',
-                }}
-              >
-                <span
-                  className="shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold"
-                  style={{
-                    background: 'var(--get-badge-bg)',
-                    color: 'var(--get-badge-fg)',
-                  }}
-                >
-                  GET
-                </span>
-                <code
-                  className="font-mono text-[12px] break-all"
-                  style={{ color: 'var(--text-2)' }}
-                >
-                  /api/verify/:nafdac
-                </code>
-              </div>
-            </div>
-          </div>
-
-          <div className="min-w-0 lg:max-w-2xl">
-            <LandingCodeTabs
-              tabs={[
-                { id: 'curl', label: 'Request', body: curlSample },
-                { id: 'json', label: 'Response', body: jsonSample },
-              ]}
-            />
-          </div>
-        </div>
-
-        <div
-          className="mt-20 border-t pt-16"
-          style={{ borderColor: 'var(--border-subtle)' }}
-        >
-          <div className="max-w-xl">
-            <p
-              className="font-mono text-[11px] uppercase tracking-[0.2em]"
-              style={{ color: 'var(--text-3)' }}
-            >
-              API Pro
-            </p>
-            <h2 className="mt-3 font-display text-[1.65rem] font-semibold sm:text-[1.9rem]">
-              Batch lookup &amp; product search
-            </h2>
-            <p
-              className="mt-3 text-[14px] leading-relaxed"
-              style={{ color: 'var(--text-2)' }}
-            >
-              These endpoints use the same{' '}
-              <code
-                className="font-mono text-[12px]"
-                style={{ color: 'var(--text-3)' }}
-              >
-                x-api-key
-              </code>{' '}
-              header and require an active{' '}
-              <span className="font-medium text-foreground">API Pro</span>{' '}
-              subscription. Product search reads from{' '}
-              <span className="font-medium text-foreground">
-                our indexed database
-              </span>{' '}
-              of registered products. Free accounts receive{' '}
-              <code
-                className="font-mono text-[12px]"
-                style={{ color: 'var(--text-3)' }}
-              >
-                403 FEATURE_REQUIRES_PRO
-              </code>
-              .
-            </p>
-          </div>
-          <div className="mt-10 min-w-0 max-w-2xl">
-            <ProApiEndpointsDocs apiBaseUrl={apiBase} />
+              Try the lookup
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* ═══════════════════════════════════════════════════════
+          FEATURES — 2-column grid with accent stripe left
+          ═══════════════════════════════════════════════════════ */}
       <section
         className="border-t"
         style={{ borderColor: 'var(--border-subtle)' }}
       >
-        <div className="mx-auto max-w-[1120px] min-w-0 px-5 py-20 sm:px-6 sm:py-24">
-          <div
-            className="relative min-w-0 overflow-hidden rounded-2xl border px-6 py-10 sm:px-12 sm:py-16 sm:flex sm:items-center sm:justify-between"
-            style={{
-              borderColor: 'var(--border)',
-              background: 'var(--bg-subtle)',
-            }}
-          >
-            <div
-              className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 translate-x-1/2"
-              style={{
-                background: `radial-gradient(circle, var(--hero-orb-2), transparent 70%)`,
-              }}
-              aria-hidden
-            />
+        <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="mb-12">
+            <p
+              className="font-mono text-[11px] uppercase tracking-[0.25em]"
+              style={{ color: 'var(--accent)' }}
+            >
+              Features
+            </p>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground">
+              Everything you need to verify.
+            </h2>
+          </div>
 
-            <div className="relative max-w-xl">
-              <h2 className="font-display text-[1.6rem] font-semibold sm:text-[1.85rem]">
-                Ready to integrate?
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div
+                  key={f.label}
+                  className="group relative overflow-hidden rounded-2xl border p-6 transition-all hover:border-(--border)"
+                  style={{
+                    borderColor: 'var(--border-subtle)',
+                    background: 'var(--bg-subtle)',
+                  }}
+                >
+                  {/* Hover accent glow */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 30% 20%, rgba(223,255,31,0.05), transparent 60%)',
+                    }}
+                    aria-hidden
+                  />
+                  <div
+                    className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border"
+                    style={{
+                      borderColor: 'var(--border)',
+                      background: 'var(--bg-raised)',
+                    }}
+                  >
+                    <Icon
+                      className="h-5 w-5"
+                      strokeWidth={1.75}
+                      style={{ color: 'var(--accent)' }}
+                      aria-hidden
+                    />
+                  </div>
+                  <h3 className="text-[15px] font-semibold text-foreground">
+                    {f.label}
+                  </h3>
+                  <p
+                    className="mt-1.5 text-[13px] leading-relaxed"
+                    style={{ color: 'var(--text-2)' }}
+                  >
+                    {f.body}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          COMMUNITY — tweets from real users
+          ═══════════════════════════════════════════════════════ */}
+      <section
+        className="relative border-t overflow-hidden"
+        style={{
+          borderColor: 'var(--border-subtle)',
+          background: 'var(--bg-subtle)',
+        }}
+      >
+        {/* Large decorative "9" */}
+        <div
+          className="pointer-events-none absolute -left-8 top-0 select-none text-[clamp(16rem,35vw,28rem)] font-bold leading-none opacity-[0.025]"
+          style={{ color: 'var(--text)', lineHeight: 1 }}
+          aria-hidden
+        >
+          9
+        </div>
+
+        <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="mb-12 flex items-end justify-between gap-8">
+            <div>
+              <p
+                className="font-mono text-[11px] uppercase tracking-[0.25em]"
+                style={{ color: 'var(--accent)' }}
+              >
+                Community
+              </p>
+              <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground">
+                From the community
               </h2>
               <p
-                className="mt-2 text-[15px] leading-relaxed"
+                className="mt-3 max-w-sm text-[14px] leading-relaxed"
                 style={{ color: 'var(--text-2)' }}
               >
-                Sign in with Google, create a key, and start integrating lookups
-                in under two minutes.
+                Shout-outs and posts we have permission to embed. Mention the
+                bot or tag #9jacheckr on X if you would like to be featured.
               </p>
-              <ul className="mt-5 space-y-2">
+            </div>
+            <a
+              href="https://x.com/search?q=9jacheckr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-colors hover:bg-(--nav-hover-bg) sm:inline-flex"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 shrink-0 fill-current"
+                aria-hidden
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.844L1.254 2.25H8.08l4.258 5.631 5.906-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              View on X
+            </a>
+          </div>
+
+          <TweetWall />
+
+          {/* If only one tweet, show a placeholder card inviting more */}
+          <div
+            className="mt-5 flex items-center gap-4 rounded-2xl border border-dashed p-6"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+              style={{
+                borderColor: 'var(--border)',
+                background: 'var(--bg-raised)',
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-5 w-5 fill-current"
+                style={{ color: 'var(--text-3)' }}
+                aria-hidden
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.736-8.844L1.254 2.25H8.08l4.258 5.631 5.906-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[13px] font-medium text-foreground">
+                Share your experience
+              </p>
+              <p className="text-[12px]" style={{ color: 'var(--text-3)' }}>
+                Tag{' '}
+                <span
+                  className="font-mono transition-colors hover:text-foreground"
+                  style={{ color: 'var(--text-2)' }}
+                >
+                  #9jacheckr and @ez0xai
+                </span>{' '}
+                on X to get featured here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          PRICING
+          ═══════════════════════════════════════════════════════ */}
+      <LandingPricingSection />
+
+      {/* ═══════════════════════════════════════════════════════
+          DEVELOPERS — split layout with code sample
+          ═══════════════════════════════════════════════════════ */}
+      <section
+        id="developers"
+        className="border-t"
+        style={{
+          borderColor: 'var(--border-subtle)',
+          background: 'var(--bg-subtle)',
+        }}
+      >
+        <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+            <div>
+              <div
+                className="mb-4 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium"
+                style={{
+                  borderColor: 'var(--border)',
+                  color: 'var(--text-2)',
+                  background: 'var(--bg-raised)',
+                }}
+              >
+                <Code2 className="h-3.5 w-3.5" aria-hidden />
+                For developers
+              </div>
+              <h2 className="text-[clamp(1.75rem,3.5vw,2.25rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground">
+                One API call.
+                <span className="block" style={{ color: 'var(--text-2)' }}>
+                  Any product, any scale.
+                </span>
+              </h2>
+              <p
+                className="mt-4 text-[15px] leading-relaxed"
+                style={{ color: 'var(--text-2)' }}
+              >
+                Call our API with your dashboard key. Free tier for testing;
+                upgrade for production volume, batch verify, and product search.
+              </p>
+              <ul className="mt-6 space-y-2.5">
                 {[
-                  'Free to start — upgrade anytime',
-                  'Instant API key',
-                  'No credit card for Free tier',
+                  'REST-style JSON — no SDK required',
+                  'GET /api/verify/:nafdac with x-api-key header',
+                  '300 free verify calls / month (dashboard key)',
+                  'API Pro: batch verify, product search, higher limits',
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-2 text-[13px]"
+                    className="flex items-center gap-2.5 text-[14px]"
                     style={{ color: 'var(--text-2)' }}
                   >
                     <Check
-                      className="h-3.5 w-3.5 shrink-0"
-                      style={{ color: 'var(--accent)' }}
+                      className="h-4 w-4 shrink-0"
                       strokeWidth={2.5}
+                      style={{ color: 'var(--accent)' }}
+                      aria-hidden
                     />
                     {item}
                   </li>
                 ))}
               </ul>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/docs"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-semibold text-black transition-opacity hover:opacity-90"
+                  style={{ background: 'var(--accent)' }}
+                >
+                  Read the docs
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+                <Link
+                  href="/login?next=/dashboard"
+                  className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-[14px] font-medium transition-colors hover:bg-(--nav-hover-bg)"
+                  style={{
+                    borderColor: 'var(--border)',
+                    color: 'var(--text-2)',
+                  }}
+                >
+                  Dashboard & keys
+                </Link>
+              </div>
             </div>
 
-            <div className="relative mt-8 sm:mt-0 sm:shrink-0">
-              <LandingFooterCta />
+            {/* Code sample */}
+            <div
+              className="overflow-hidden rounded-2xl border font-mono"
+              style={{
+                borderColor: 'var(--border)',
+                background: 'var(--bg-raised)',
+              }}
+            >
+              <div
+                className="flex items-center justify-between border-b px-4 py-3"
+                style={{
+                  borderColor: 'var(--border-subtle)',
+                  background: 'var(--bg-overlay)',
+                }}
+              >
+                <div className="flex gap-1.5" aria-hidden>
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/60" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-green-400/60" />
+                </div>
+                <span
+                  className="text-[11px]"
+                  style={{ color: 'var(--text-3)' }}
+                >
+                  curl example
+                </span>
+              </div>
+              <pre
+                className="overflow-x-auto p-5 text-[13px] leading-[1.8]"
+                style={{ color: 'var(--text-2)' }}
+              >
+                <code
+                  dangerouslySetInnerHTML={{
+                    __html: `<span style="color:var(--syn-comment)"># Verify by NAFDAC number (path segment)</span>\ncurl -s <span style="color:var(--syn-str)">"https://api.9jacheckr.xyz/api/verify/01-5713"</span> \\\n  -H <span style="color:var(--syn-str)">"x-api-key: YOUR_API_KEY"</span>`,
+                  }}
+                />
+              </pre>
+              <div
+                className="border-t px-5 py-3.5"
+                style={{ borderColor: 'var(--border-subtle)' }}
+              >
+                <span
+                  className="inline-flex items-center gap-1.5 text-[11px] font-medium"
+                  style={{ color: 'var(--stat-found)' }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                  Returns: JSON — ok + product (name, manufacturer, dates, …)
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <footer
-        className="border-t"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
-        <div className="mx-auto flex max-w-[1120px] min-w-0 flex-col gap-8 px-5 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-6">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-[14px] font-semibold text-foreground"
-            >
-              <span
-                className="flex h-[22px] w-[22px] items-center justify-center rounded-[4px] text-[11px] font-bold text-black"
-                style={{ background: 'var(--accent)' }}
-              >
-                9
-              </span>
-              9ja Checkr
-            </Link>
-            <p
-              className="mt-2 max-w-[240px] text-[12px] leading-relaxed"
-              style={{ color: 'var(--text-3)' }}
-            >
-              Independent NAFDAC registration lookup for developers and teams —
-              not affiliated with NAFDAC. Results are informational; see our{' '}
-              <Link
-                href="/disclaimer"
-                className="underline underline-offset-2 transition-colors hover:text-foreground"
-              >
-                disclaimer
-              </Link>
-              .
-            </p>
-            <p className="mt-4 text-[12px]" style={{ color: 'var(--text-3)' }}>
-              © {new Date().getFullYear()} 9ja Checkr
-            </p>
-          </div>
-
-          <div className="flex gap-12 text-[13px]">
-            <div className="space-y-2.5">
-              <p
-                className="text-[11px] font-medium uppercase tracking-[0.14em]"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Product
-              </p>
-              <a
-                href="#features"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Features
-              </a>
-              <a
-                href="#pricing"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Pricing
-              </a>
-              <a
-                href="#api"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                API
-              </a>
-              <Link
-                href="/login"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/disclaimer"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Disclaimer
-              </Link>
-            </div>
-            <div className="space-y-2.5">
-              <p
-                className="text-[11px] font-medium uppercase tracking-[0.14em]"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Community
-              </p>
-              <a
-                href="https://t.me/NaijaCheckrBot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Telegram bot
-              </a>
-              <a
-                href={SUPPORT_PAYSTACK_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Support the project
-              </a>
-              <a
-                href={SUPPORT_MAILTO}
-                className="block transition-colors hover:text-foreground"
-                style={{ color: 'var(--text-3)' }}
-              >
-                Email support
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

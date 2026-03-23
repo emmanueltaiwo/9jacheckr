@@ -11,10 +11,13 @@ export function LandingFooterCta() {
   return (
     <Link
       href={signedIn ? '/dashboard' : '/login?next=/dashboard'}
-      className="group btn-primary h-[42px] px-6 text-[14px] focus-visible-ring"
+      className="group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-(--accent) px-8 text-[13px] font-bold uppercase tracking-[0.08em] text-black transition-opacity hover:opacity-95 focus-visible-ring"
     >
-      {signedIn ? 'Open dashboard' : 'Create free account'}
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+      {signedIn ? 'Dashboard' : 'Create account'}
+      <ArrowRight
+        className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+        aria-hidden
+      />
     </Link>
   );
 }

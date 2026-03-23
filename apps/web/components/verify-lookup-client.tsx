@@ -1,428 +1,108 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
+import { ArrowRight, Loader2, Search } from 'lucide-react';
+import { useVerifyLookup } from '@/hooks/use-verify-lookup';
 import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  Loader2,
-  Search,
-  ShieldCheck,
-} from 'lucide-react';
-import Link from 'next/link';
+  ProductResultView,
+  VerifyErrorBanner,
+} from '@/components/verify-product-result';
 
-type ProductJson = {
-  nafdac: string;
-  name: string;
-  category: string;
-  source: string;
-  manufacturer: string;
-  approvedDate: string | null;
-  expiryDate: string | null;
-  ingredients: string[];
-};
-
-type SuccessJson = { ok: true; product: ProductJson };
-type ErrorJson = { ok: false; code: string; message: string };
-
-function formatDateLabel(iso: string | null): string {
-  if (!iso) return 'Not listed';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return 'Not listed';
-  return new Intl.DateTimeFormat(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(d);
-}
-
-/** How long ago a past date was (expiry &lt; now). */
-function relativeTimePast(past: Date, now: Date): string {
-  const dayMs = 86_400_000;
-  const totalDays = Math.floor((now.getTime() - past.getTime()) / dayMs);
-  if (totalDays < 1) return 'less than a day ago';
-  if (totalDays === 1) return '1 day ago';
-  if (totalDays < 7) return `${totalDays} days ago`;
-
-  const weeks = Math.floor(totalDays / 7);
-  if (totalDays < 30) {
-    return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
-  }
-
-  let months =
-    (now.getFullYear() - past.getFullYear()) * 12 +
-    (now.getMonth() - past.getMonth());
-  if (now.getDate() < past.getDate()) months -= 1;
-  if (months < 1) {
-    return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
-  }
-  if (months < 12) {
-    return months === 1 ? '1 month ago' : `${months} months ago`;
-  }
-
-  const years = Math.floor(months / 12);
-  return years === 1 ? '1 year ago' : `${years} years ago`;
-}
-
-function formatExpiryDetail(iso: string | null): string {
-  const label = formatDateLabel(iso);
-  if (!iso) return label;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return label;
-  const now = new Date();
-  if (d >= now) return label;
-  return `${label} · expired ${relativeTimePast(d, now)}`;
-}
-
-function expiryNotice(iso: string | null): {
-  tone: 'expired' | 'soon' | null;
-  text: string;
-} {
-  if (!iso) return { tone: null, text: '' };
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return { tone: null, text: '' };
-  const now = new Date();
-  if (d < now) {
-    const when = relativeTimePast(d, now);
-    return {
-      tone: 'expired',
-      text: `This registration expired ${when} (${formatDateLabel(iso)}). Treat the record as historical and confirm on packaging.`,
-    };
-  }
-  const days = (d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-  if (days <= 120) {
-    return {
-      tone: 'soon',
-      text: `Expires in about ${Math.max(1, Math.ceil(days))} days — double-check the label before you buy.`,
-    };
-  }
-  return { tone: null, text: '' };
-}
-
-function DetailCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div
-      className="rounded-xl border p-4 sm:p-5"
-      style={{
-        borderColor: 'var(--border-subtle)',
-        background: 'rgba(0,0,0,0.28)',
-      }}
-    >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-(--text-3)">
-        {label}
-      </p>
-      <p className="mt-2 text-[15px] font-medium leading-snug text-foreground">
-        {value}
-      </p>
-    </div>
-  );
-}
+/** Format examples only — not a guarantee each number exists in the register */
+const EXAMPLES = ['01-5713', 'A1-5645', '04-8122'];
 
 export function VerifyLookupClient() {
   const formId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [product, setProduct] = useState<ProductJson | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { loading, product, errorMessage, lookup } = useVerifyLookup();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setErrorMessage('Enter the number from the product label.');
-      setProduct(null);
-      return;
-    }
-    setLoading(true);
-    setErrorMessage(null);
-    setProduct(null);
-
-    try {
-      const res = await fetch('/api/verify-lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nafdac: trimmed }),
-      });
-      const data = (await res.json()) as SuccessJson | ErrorJson;
-
-      if (!res.ok || !data.ok) {
-        const msg =
-          data.ok === false && data.message
-            ? data.message
-            : 'Something went wrong. Try again shortly.';
-        setErrorMessage(msg);
-        return;
-      }
-
-      setProduct(data.product);
-    } catch {
-      setErrorMessage(
-        'We could not reach the server. Check your connection and try again.',
-      );
-    } finally {
-      setLoading(false);
-    }
+    await lookup(value.trim());
   }
-
-  const exp = product
-    ? expiryNotice(product.expiryDate)
-    : { tone: null, text: '' };
 
   return (
     <div className="min-w-0 space-y-8">
-      <form
-        id={formId}
-        onSubmit={(e) => void onSubmit(e)}
-        className="relative min-w-0"
-      >
+      <form id={formId} onSubmit={(e) => void onSubmit(e)}>
         <label htmlFor={`${formId}-input`} className="sr-only">
           NAFDAC registration number
         </label>
+
         <div
-          className="flex min-w-0 flex-col gap-3 rounded-2xl border p-2 sm:flex-row sm:items-stretch sm:p-2.5 sm:pr-2.5"
+          className="flex items-center gap-2 rounded-2xl p-2"
           style={{
-            borderColor: 'var(--border)',
-            background:
-              'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.2) 100%)',
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.4) inset',
+            background: 'var(--bg-raised)',
+            border: '1px solid var(--border)',
+            boxShadow:
+              '0 0 0 4px rgba(223,255,31,0.06), 0 4px 6px -1px rgba(0,0,0,0.4), 0 24px 64px -20px rgba(223,255,31,0.12)',
           }}
         >
-          <div className="relative flex min-h-[52px] min-w-0 flex-1 items-center gap-3 px-3 sm:px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
             <Search
-              className="h-5 w-5 shrink-0 text-(--text-3)"
+              className="h-4.5 w-4.5 shrink-0"
               strokeWidth={1.75}
+              style={{ color: 'var(--accent)' }}
               aria-hidden
             />
             <input
+              ref={inputRef}
               id={`${formId}-input`}
               type="text"
               inputMode="text"
               autoComplete="off"
               spellCheck={false}
-              placeholder="Type or paste NAFDAC number…"
+              placeholder="e.g. 01-5713"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               disabled={loading}
-              className="min-w-0 flex-1 bg-transparent py-2 font-mono text-[16px] text-foreground outline-none placeholder:text-(--text-3) disabled:opacity-50 sm:text-[17px]"
+              autoFocus
+              className="min-w-0 flex-1 bg-transparent py-3.5 font-mono text-[17px] text-foreground outline-none placeholder:text-(--text-3) disabled:opacity-50 sm:text-[18px]"
             />
           </div>
           <button
             type="submit"
-            disabled={loading}
-            className="inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-xl bg-(--accent) px-6 text-[15px] font-semibold text-black transition hover:bg-(--accent-hover) focus-visible-ring disabled:cursor-not-allowed disabled:opacity-45 sm:h-auto sm:min-w-[148px]"
+            disabled={loading || !value.trim()}
+            className="flex h-13 shrink-0 items-center gap-2 rounded-xl px-6 text-[14px] font-bold uppercase tracking-[0.06em] text-black transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 sm:px-8"
+            style={{ background: 'var(--accent)' }}
           >
             {loading ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-                Checking
-              </>
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
             ) : (
               <>
-                Look up
+                <span className="hidden sm:inline">Verify</span>
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </>
             )}
           </button>
         </div>
-        <p
-          className="mt-3 text-center text-[13px] sm:text-left"
-          style={{ color: 'var(--text-3)' }}
-        >
-          Examples:{' '}
-          <button
-            type="button"
-            className="font-mono text-[12px] text-(--text-2) underline decoration-(--border) underline-offset-4 transition hover:text-(--accent)"
-            onClick={() => setValue('01-5713')}
-          >
-            01-5713
-          </button>
-        </p>
+
+        <div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-2">
+          <span className="text-[12px]" style={{ color: 'var(--text-3)' }}>
+            Try:
+          </span>
+          {EXAMPLES.map((code) => (
+            <button
+              key={code}
+              type="button"
+              onClick={() => {
+                setValue(code);
+                inputRef.current?.focus();
+              }}
+              className="rounded-md px-2 py-0.5 font-mono text-[11px] transition-colors hover:bg-(--nav-hover-bg)"
+              style={{
+                color: 'var(--text-3)',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              {code}
+            </button>
+          ))}
+        </div>
       </form>
 
-      {errorMessage ? (
-        <div
-          className="flex gap-3 rounded-2xl border px-4 py-4 sm:px-5"
-          style={{
-            borderColor: 'rgba(251, 191, 36, 0.25)',
-            background: 'rgba(251, 191, 36, 0.06)',
-          }}
-          role="alert"
-        >
-          <AlertCircle
-            className="mt-0.5 h-5 w-5 shrink-0 text-amber-400/95"
-            aria-hidden
-          />
-          <p className="text-[14px] leading-relaxed text-(--text-2)">
-            {errorMessage}
-          </p>
-        </div>
-      ) : null}
-
-      {product ? (
-        <div className="verify-result-reveal min-w-0">
-          {exp.tone ? (
-            <div
-              className="mb-4 rounded-xl border px-4 py-3 text-[13px] leading-relaxed"
-              style={{
-                borderColor:
-                  exp.tone === 'expired'
-                    ? 'rgba(248, 113, 113, 0.3)'
-                    : 'rgba(251, 191, 36, 0.25)',
-                background:
-                  exp.tone === 'expired'
-                    ? 'rgba(248, 113, 113, 0.06)'
-                    : 'rgba(251, 191, 36, 0.06)',
-                color: 'var(--text-2)',
-              }}
-            >
-              {exp.text}
-            </div>
-          ) : null}
-
-          <div
-            className="overflow-hidden rounded-2xl border"
-            style={{
-              borderColor: 'var(--border)',
-              background: 'var(--bg-subtle)',
-            }}
-          >
-            <div
-              className="border-b px-5 py-6 sm:px-8 sm:py-8"
-              style={{
-                borderColor: 'var(--border-subtle)',
-                background: 'var(--verify-result-header-gradient)',
-              }}
-            >
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-9 w-9 items-center justify-center rounded-full"
-                      style={{
-                        background: 'var(--get-badge-bg)',
-                        color: 'var(--get-badge-fg)',
-                      }}
-                    >
-                      <CheckCircle2 className="h-5 w-5" strokeWidth={2} />
-                    </span>
-                    <span className="text-[12px] font-semibold uppercase tracking-wider text-(--text-3)">
-                      On the register
-                    </span>
-                  </div>
-                  <h2 className="mt-4 font-display text-[1.5rem] font-semibold leading-tight tracking-[-0.03em] text-foreground sm:text-[1.75rem]">
-                    {product.name}
-                  </h2>
-                  <p className="mt-2 font-mono text-[13px] text-(--text-2)">
-                    {product.nafdac}
-                  </p>
-                </div>
-                <div
-                  className="flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-[12px] text-(--text-2)"
-                  style={{
-                    borderColor: 'var(--border-subtle)',
-                    background: 'var(--verify-meta-pill-bg)',
-                  }}
-                >
-                  <ShieldCheck
-                    className="h-4 w-4 shrink-0 opacity-90"
-                    style={{ color: 'var(--accent)' }}
-                    strokeWidth={2}
-                  />
-                  Public register data
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3 p-4 sm:grid-cols-2 sm:gap-4 sm:p-6">
-              <DetailCard
-                label="Manufacturer"
-                value={product.manufacturer || '—'}
-              />
-              <DetailCard label="Category" value={product.category || '—'} />
-              <DetailCard
-                label="Approved"
-                value={formatDateLabel(product.approvedDate)}
-              />
-              <DetailCard
-                label="Expiry"
-                value={formatExpiryDetail(product.expiryDate)}
-              />
-            </div>
-
-            {product.source ? (
-              <div
-                className="border-t px-4 py-3 sm:px-6"
-                style={{
-                  borderColor: 'var(--border-subtle)',
-                  background: 'rgba(0,0,0,0.15)',
-                }}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-(--text-3)">
-                  Source
-                </p>
-                <p className="mt-1 text-[13px] text-(--text-2)">
-                  {product.source}
-                </p>
-              </div>
-            ) : null}
-
-            {product.ingredients.length > 0 ? (
-              <div
-                className="border-t px-4 py-5 sm:px-6 sm:py-6"
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-(--text-3)">
-                  Ingredients
-                </p>
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {product.ingredients.map((ing, idx) => (
-                    <li
-                      key={`${ing}-${idx}`}
-                      className="rounded-lg border px-3 py-1.5 font-mono text-[12px] text-(--text-2)"
-                      style={{
-                        borderColor: 'var(--border-subtle)',
-                        background: 'rgba(0,0,0,0.2)',
-                      }}
-                    >
-                      {ing}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            <p
-              className="border-t px-4 py-4 text-[12px] leading-relaxed sm:px-6"
-              style={{
-                borderColor: 'var(--border-subtle)',
-                color: 'var(--text-3)',
-              }}
-            >
-              We automate NAFDAC&apos;s public lookup flow; results may be
-              cached. Not affiliated with NAFDAC — see our{' '}
-              <Link
-                href="/disclaimer"
-                className="font-medium text-(--accent) underline underline-offset-2 transition-colors hover:text-(--accent-hover)"
-              >
-                disclaimer
-              </Link>
-              . Always match what you see on the pack and buy from sellers you
-              trust.
-            </p>
-          </div>
-
-          <p className="mt-6 text-center text-[13px] text-(--text-3) sm:text-left">
-            Building an app?{' '}
-            <Link
-              href="/login?next=/dashboard"
-              className="font-medium text-(--accent) underline underline-offset-4 transition-colors hover:text-(--accent-hover)"
-            >
-              Get an API key
-            </Link>{' '}
-            for automated lookups.
-          </p>
-        </div>
-      ) : null}
+      {errorMessage ? <VerifyErrorBanner message={errorMessage} /> : null}
+      {product ? <ProductResultView product={product} /> : null}
     </div>
   );
 }
