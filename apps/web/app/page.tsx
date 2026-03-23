@@ -135,7 +135,7 @@ export default function Home() {
         <div className="relative flex w-full max-w-2xl flex-1 flex-col justify-center text-center">
           {/* Category pill */}
           <div
-            className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-medium"
+            className="mx-auto mb-6 flex w-fit max-w-full items-start gap-2 rounded-full border px-3.5 py-2 text-[12px] font-medium leading-snug sm:items-center sm:px-4 sm:py-1.5"
             style={{
               borderColor: 'var(--border)',
               color: 'var(--text-2)',
@@ -143,11 +143,13 @@ export default function Home() {
             }}
           >
             <span
-              className="h-1.5 w-1.5 animate-pulse rounded-full"
+              className="mt-[0.35em] h-1.5 w-1.5 shrink-0 animate-pulse rounded-full sm:mt-0"
               style={{ background: 'var(--accent)' }}
               aria-hidden
             />
-            Nigeria · NAFDAC registration lookup · Independent tool
+            <span className="min-w-0 text-balance">
+              Nigeria · NAFDAC registration lookup · Independent tool
+            </span>
           </div>
 
           {/* Headline */}
