@@ -2,20 +2,7 @@ import { ProductModel } from '../models/productModel.js';
 import type { ExternalNafdacPayload, ProductPlain } from '../types/types.js';
 import { logger } from '../utils/logger.js';
 import { fetchProductFromNafdacRegistration } from '../utils/nafdacRegistrationClient.js';
-
-function normalizeNafdac(raw: string): string {
-  const t = raw.trim().toUpperCase().replace(/\s+/g, '');
-  if (!t) return '';
-  if (t.includes('-')) return t;
-
-  // (`015713` -> `01-5713`).
-  if (/^\d+$/.test(t)) {
-    if (t.length === 6) return `${t.slice(0, 2)}-${t.slice(2)}`;
-    if (t.length === 7) return `${t.slice(0, 3)}-${t.slice(3)}`;
-  }
-
-  return t;
-}
+import { normalizeNafdac } from '../utils/nafdacFromOcrText.js';
 
 function parseDate(value: string | null | undefined): Date | null {
   if (value == null || value === '') return null;

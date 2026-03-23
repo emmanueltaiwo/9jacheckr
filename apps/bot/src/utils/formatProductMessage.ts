@@ -18,7 +18,7 @@ function expiryStatus(expiryDate: string | null): {
   const days = Math.ceil(ms / (24 * 60 * 60 * 1000));
   if (days < 0)
     return {
-      line: '⚠️ This registration appears expired. Do not use.',
+      line: '⚠️ This registration appears expired. Do not use if in doubt. Buy from licensed outlets only.',
       warn: true,
     };
   if (days <= 90)

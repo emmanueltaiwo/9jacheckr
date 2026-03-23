@@ -27,6 +27,9 @@ import {
   nafdacHealthSampleNumber,
   runNafdacHealthProbe,
 } from './services/nafdacHealthProbeService.js';
+import { botVerifyImageController } from './controllers/botVerifyImageController.js';
+import { botVerifyImageRateLimit } from './middleware/botVerifyImageRateLimit.js';
+import { requireBotInternalToken } from './middleware/requireBotInternalToken.js';
 
 const PORT = Number(process.env.PORT) || 4000;
 
@@ -63,6 +66,47 @@ async function main() {
     express.raw({ type: 'application/json' }),
     (req, res, next) => {
       billingWebhookController(req, res).catch(next);
+    },
+  );
+
+  app.post(
+    '/api/bot/verify-image',
+    botRoutesRateLimiter,
+    express.raw({
+      limit: '8mb',
+      type: ['image/jpeg', 'image/png', 'image/webp'],
+    }),
+    (req, res, next) => {
+      if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+        const ct = req.headers['content-type']
+          ?.split(';')[0]
+          ?.trim()
+          .toLowerCase();
+
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+
+        if (!ct || !allowed.includes(ct)) {
+          res.status(415).json({
+            ok: false,
+            code: 'UNSUPPORTED_MEDIA_TYPE',
+            message: 'Use Content-Type image/jpeg, image/png, or image/webp.',
+          });
+          return;
+        }
+
+        res.status(400).json({
+          ok: false,
+          code: 'BAD_REQUEST',
+          message: 'Empty image body.',
+        });
+        return;
+      }
+      next();
+    },
+    requireBotInternalToken,
+    botVerifyImageRateLimit,
+    (req, res, next) => {
+      void botVerifyImageController(req, res, next);
     },
   );
 

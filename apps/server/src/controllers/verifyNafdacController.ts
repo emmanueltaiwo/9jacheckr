@@ -34,6 +34,52 @@ function toBotTelegramPayload(req: Request): BotTelegramPayload | undefined {
   };
 }
 
+export async function respondAfterProductLookup(
+  res: Response,
+  ctx: {
+    product: ProductPlain | null;
+    isBot: boolean;
+    botTelegram: BotTelegramPayload | undefined;
+    keyUserId: string | undefined;
+    notFoundNafdac?: string;
+  },
+): Promise<void> {
+  const { product, isBot, botTelegram, keyUserId, notFoundNafdac } = ctx;
+  if (!product) {
+    if (isBot) {
+      await recordBotVerifyMetrics(botTelegram, 'not_found').catch(() => {});
+    }
+    if (keyUserId) {
+      await recordUserApiVerify(keyUserId, 'not_found').catch(() => {});
+      await incrementMonthlyApiVerify(keyUserId).catch(() => {});
+    }
+    if (isBot && botTelegram?.id) {
+      await incrementBotDailyVerify(botTelegram.id).catch(() => {});
+    }
+    const body: VerifyApiErrorBody = {
+      ok: false,
+      code: 'NOT_FOUND',
+      message: 'Product not found for this NAFDAC number',
+      ...(notFoundNafdac ? { nafdac: notFoundNafdac } : {}),
+    };
+    res.status(404).json(body);
+    return;
+  }
+
+  if (isBot) {
+    await recordBotVerifyMetrics(botTelegram, 'found').catch(() => {});
+  }
+  if (keyUserId) {
+    await recordUserApiVerify(keyUserId, 'found').catch(() => {});
+    await incrementMonthlyApiVerify(keyUserId).catch(() => {});
+  }
+  if (isBot && botTelegram?.id) {
+    await incrementBotDailyVerify(botTelegram.id).catch(() => {});
+  }
+  const body: VerifyApiSuccess = { ok: true, product };
+  res.status(200).json(body);
+}
+
 export async function verifyNafdacController(
   req: Request,
   res: Response,
@@ -87,38 +133,12 @@ export async function verifyNafdacController(
 
     logger.info('verifyController request received', { nafdac: raw });
     const product: ProductPlain | null = await getOrFetchProduct(raw);
-    if (!product) {
-      if (isBot) {
-        await recordBotVerifyMetrics(botTelegram, 'not_found').catch(() => {});
-      }
-      if (keyUserId) {
-        await recordUserApiVerify(keyUserId, 'not_found').catch(() => {});
-        await incrementMonthlyApiVerify(keyUserId).catch(() => {});
-      }
-      if (isBot && botTelegram?.id) {
-        await incrementBotDailyVerify(botTelegram.id).catch(() => {});
-      }
-      const body: VerifyApiErrorBody = {
-        ok: false,
-        code: 'NOT_FOUND',
-        message: 'Product not found for this NAFDAC number',
-      };
-      res.status(404).json(body);
-      return;
-    }
-
-    if (isBot) {
-      await recordBotVerifyMetrics(botTelegram, 'found').catch(() => {});
-    }
-    if (keyUserId) {
-      await recordUserApiVerify(keyUserId, 'found').catch(() => {});
-      await incrementMonthlyApiVerify(keyUserId).catch(() => {});
-    }
-    if (isBot && botTelegram?.id) {
-      await incrementBotDailyVerify(botTelegram.id).catch(() => {});
-    }
-    const body: VerifyApiSuccess = { ok: true, product };
-    res.status(200).json(body);
+    await respondAfterProductLookup(res, {
+      product,
+      isBot,
+      botTelegram,
+      keyUserId,
+    });
   } catch (err) {
     if (isBot) {
       await recordBotVerifyMetrics(botTelegram, 'failed').catch(() => {});

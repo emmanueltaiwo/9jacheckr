@@ -68,4 +68,5 @@ export interface VerifyApiErrorBody {
   code: string;
   message: string;
   nafdac?: string;
+  candidates?: string[];
 }

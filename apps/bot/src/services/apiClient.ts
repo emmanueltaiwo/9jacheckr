@@ -130,6 +130,52 @@ export async function verifyNafdac(
   }
 }
 
+export async function verifyNafdacFromImage(
+  baseUrl: string,
+  imageBytes: Buffer,
+  contentType: 'image/jpeg' | 'image/png' | 'image/webp',
+  caller: BotCallerInfo,
+): Promise<VerifyResponseDto> {
+  const url = `${baseUrl.replace(/\/$/, '')}/api/bot/verify-image`;
+  try {
+    const res = await axios.post<unknown>(url, imageBytes, {
+      timeout: 60_000,
+      validateStatus: () => true,
+      headers: {
+        'Content-Type': contentType,
+        'x-internal-bot-token': process.env.BOT_INTERNAL_TOKEN ?? '',
+        ...callerHeaders(caller),
+      },
+      maxBodyLength: 9 * 1024 * 1024,
+      maxContentLength: 9 * 1024 * 1024,
+    });
+    const data = res.data;
+    if (data && typeof data === 'object' && 'ok' in data) {
+      return data as VerifyResponseDto;
+    }
+    return {
+      ok: false,
+      code: 'INVALID_RESPONSE',
+      message: 'Verification service returned an unexpected response.',
+    };
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const ax = err as AxiosError;
+      logger.error('Verify-image API request failed', {
+        message: ax.message,
+        code: ax.code,
+      });
+    } else {
+      logger.error('Verify-image API request failed', { message: String(err) });
+    }
+    return {
+      ok: false,
+      code: 'NETWORK_ERROR',
+      message: 'Could not reach verification service. Try again later.',
+    };
+  }
+}
+
 type BotCheckoutJson =
   | {
       ok: true;

@@ -19,6 +19,7 @@ export interface VerifyErrorDto {
   code: string;
   message: string;
   nafdac?: string;
+  candidates?: string[];
 }
 
 export type VerifyResponseDto = VerifySuccessDto | VerifyErrorDto;
