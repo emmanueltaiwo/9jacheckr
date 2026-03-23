@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -46,7 +47,7 @@ function TweetEmbed({ url }: { url: string }) {
     if (window.twttr?.widgets) {
       window.twttr.widgets.load(containerRef.current);
     }
-  }, []);
+  }, [url]);
 
   if (!id) return null;
 
@@ -66,7 +67,23 @@ function TweetEmbed({ url }: { url: string }) {
   );
 }
 
+const INITIAL_VISIBLE = 3;
+
 export function TweetWall() {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = TWEET_URLS.length > INITIAL_VISIBLE;
+  const visibleUrls = expanded
+    ? TWEET_URLS
+    : TWEET_URLS.slice(0, INITIAL_VISIBLE);
+
+  useEffect(() => {
+    if (!expanded || !hasMore) return;
+    const id = window.setTimeout(() => {
+      window.twttr?.widgets?.load();
+    }, 150);
+    return () => window.clearTimeout(id);
+  }, [expanded, hasMore]);
+
   return (
     <>
       <Script
@@ -77,12 +94,43 @@ export function TweetWall() {
         }}
       />
       <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
-        {TWEET_URLS.map((url) => (
+        {visibleUrls.map((url) => (
           <div key={url} className="mb-5 break-inside-avoid">
             <TweetEmbed url={url} />
           </div>
         ))}
       </div>
+      {hasMore ? (
+        <div className="mt-2 flex justify-center">
+          {expanded ? (
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[13px] font-medium transition-colors hover:bg-(--nav-hover-bg) focus-visible-ring"
+              style={{
+                borderColor: 'var(--border)',
+                color: 'var(--text-2)',
+              }}
+            >
+              <ChevronUp className="h-4 w-4 shrink-0" aria-hidden />
+              Collapse
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[13px] font-medium transition-colors hover:bg-(--nav-hover-bg) focus-visible-ring"
+              style={{
+                borderColor: 'var(--border)',
+                color: 'var(--text-2)',
+              }}
+            >
+              Show all ({TWEET_URLS.length})
+              <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+            </button>
+          )}
+        </div>
+      ) : null}
     </>
   );
 }
