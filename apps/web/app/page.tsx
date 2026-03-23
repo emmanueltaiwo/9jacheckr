@@ -118,7 +118,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════
           HERO — full-viewport, centered, verify form as the star
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
+      <section className="relative flex min-h-dvh flex-col items-center px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32">
         {/* Radial glow sitting behind the form */}
         <div
           className="pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.055] blur-[100px]"
@@ -132,7 +132,7 @@ export default function Home() {
           aria-hidden
         />
 
-        <div className="relative w-full max-w-2xl text-center">
+        <div className="relative flex w-full max-w-2xl flex-1 flex-col justify-center text-center">
           {/* Category pill */}
           <div
             className="mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-medium"
@@ -201,8 +201,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
+        {/* In flow below hero — avoids overlapping copy on short viewports */}
+        <div className="mt-8 flex shrink-0 flex-col items-center gap-1.5 pb-2 sm:mt-10 [@media(max-height:520px)]:hidden">
           <span
             className="text-[11px] uppercase tracking-[0.18em]"
             style={{ color: 'var(--text-3)' }}
@@ -210,7 +210,7 @@ export default function Home() {
             Scroll
           </span>
           <div
-            className="h-8 w-[1px]"
+            className="h-8 w-px"
             style={{
               background:
                 'linear-gradient(to bottom, var(--accent), transparent)',
@@ -470,8 +470,8 @@ export default function Home() {
             </div>
             <a
               href="https://x.com/search?q=9jacheckr"
-            target="_blank"
-            rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] transition-colors hover:bg-(--nav-hover-bg) sm:inline-flex"
               style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
             >
