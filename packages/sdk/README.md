@@ -165,6 +165,10 @@ Optional `nafdac` may appear on single-verify errors.
 | `TIMEOUT`          | Request exceeded ~25s.                  |
 | `NETWORK_ERROR`    | Network failure before a parsed body.   |
 
+## License
+
+**GNU GPLv3** — GNU General Public License v3.0 only (SPDX `GPL-3.0-only`). Strong copyleft: distribution of derivatives or combined works typically requires **same-license** source release, **notice** preservation, and **stating changes**; no warranty. Full text: monorepo root [`LICENSE`](../../LICENSE).
+
 ## Changelog
 
 ### 0.2.0

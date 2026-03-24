@@ -1,6 +1,6 @@
 {
   "name": "@9jacheckr/sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Client for the 9ja Checkr NAFDAC verify API (single verify, batch verify, product search)",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -34,7 +34,7 @@
     "9ja-checkr",
     "nigeria"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@types/node": "^24.10.1",
     "tsup": "^8.5.1",

@@ -175,7 +175,7 @@ This project is **open source**. If you deploy the stack yourself, base URL and 
 
 ### License
 
-This project is open source under the terms in [`LICENSE`](LICENSE) in the repo root.
+This project is licensed under the [**GNU General Public License v3.0**](LICENSE) (**GNU GPLv3**; SPDX `GPL-3.0-only`). It is a **strong copyleft** license: distributing modified versions or larger works that include this code generally requires making **complete corresponding source** available under the **same license**, keeping **copyright and license notices**, and **documenting changes**. **Commercial use**, **private use**, **modification**, and **patent use** are allowed; the license **disclaims liability and warranty**. Full terms: [`LICENSE`](LICENSE).
 
 ---
 
