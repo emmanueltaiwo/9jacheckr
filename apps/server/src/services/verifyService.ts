@@ -92,7 +92,11 @@ async function persistPlainUpsert(plain: ProductPlain): Promise<ProductPlain> {
         ingredients: plain.ingredients,
       },
     },
-    { new: true, upsert: true, setDefaultsOnInsert: true },
+    {
+      returnDocument: 'after',
+      upsert: true,
+      setDefaultsOnInsert: true,
+    },
   ).lean();
 
   if (updated) {
