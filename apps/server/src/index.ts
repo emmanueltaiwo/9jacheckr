@@ -30,6 +30,8 @@ import {
 import { botVerifyImageController } from './controllers/botVerifyImageController.js';
 import { botVerifyImageRateLimit } from './middleware/botVerifyImageRateLimit.js';
 import { requireBotInternalToken } from './middleware/requireBotInternalToken.js';
+import { nafdacUnavailableMiddleware } from './middleware/nafdacUnavailableMiddleware.js';
+import { isNafdacUnavailable } from './config/nafdacAvailability.js';
 
 const PORT = Number(process.env.PORT) || 4000;
 
@@ -71,6 +73,7 @@ async function main() {
 
   app.post(
     '/api/bot/verify-image',
+    nafdacUnavailableMiddleware,
     botRoutesRateLimiter,
     express.raw({
       limit: '8mb',
@@ -143,6 +146,16 @@ async function main() {
     requireHealthSecret,
     healthNafdacRateLimiter,
     async (_req, res) => {
+      if (isNafdacUnavailable()) {
+        res.status(503).json({
+          ok: false,
+          service: '9ja-checkr-api',
+          nafdac: nafdacHealthSampleNumber,
+          lookup: 'disabled',
+          reason: 'NAFDAC_UNAVAILABLE',
+        });
+        return;
+      }
       const probe = await runNafdacHealthProbe();
       if (probe.ok) {
         res.status(200).json({
@@ -164,11 +177,16 @@ async function main() {
   );
 
   app.use('/api', requireApiAccess);
-  app.use('/api/verify', verifyNafdacRouter);
-  app.use('/api/products', productSearchRouter);
+  app.use('/api/verify', nafdacUnavailableMiddleware, verifyNafdacRouter);
+  app.use('/api/products', nafdacUnavailableMiddleware, productSearchRouter);
   app.use('/api/bot', botRoutesRateLimiter, botRouter);
   app.use('/api/keys', dashboardKeysRateLimiter, apiKeyRouter);
-  app.use('/api/public', publicVerifyRateLimiter, publicVerifyRouter);
+  app.use(
+    '/api/public',
+    nafdacUnavailableMiddleware,
+    publicVerifyRateLimiter,
+    publicVerifyRouter,
+  );
 
   app.use(errorHandler);
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isNafdacUnavailableClient } from '@/lib/nafdac-availability';
 import { isPlausibleNafdacCertificate } from '@/lib/nafdac-validation';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,18 @@ function originLooksLikeOurSite(
 }
 
 export async function POST(req: NextRequest) {
+  if (isNafdacUnavailableClient()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: 'NAFDAC_UNAVAILABLE',
+        message:
+          'NAFDAC verification is temporarily unavailable while we adapt to upstream changes. Please try again later.',
+      },
+      { status: 503 },
+    );
+  }
+
   const secret = process.env.WEB_VERIFY_INTERNAL_SECRET?.trim() ?? '';
   const apiBase = (
     process.env.API_BASE_URL ??

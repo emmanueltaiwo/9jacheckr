@@ -9,6 +9,10 @@ import {
 } from './services/apiClient.js';
 import { logger } from './utils/logger.js';
 import { verifyButtonMarkup } from './utils/verifyButton.js';
+import {
+  isNafdacUnavailable,
+  NAFDAC_UNAVAILABLE_REPLY,
+} from './utils/nafdacAvailability.js';
 
 const token = process.env.TELEGRAM_BOT_TOKEN ?? '';
 const apiBase = process.env.API_BASE_URL ?? '';
@@ -26,6 +30,29 @@ async function main() {
   logger.info('Bot starting', { apiBaseUrl: apiBase });
 
   const bot = new Telegraf(token);
+
+  bot.use(async (ctx, next) => {
+    if (!isNafdacUnavailable()) {
+      return next();
+    }
+    const msg = ctx.message;
+    if (
+      msg &&
+      'successful_payment' in msg &&
+      msg.successful_payment
+    ) {
+      return next();
+    }
+    if (ctx.callbackQuery) {
+      await ctx.answerCbQuery('Verification temporarily unavailable.');
+      return;
+    }
+    if (ctx.message) {
+      await ctx.reply(NAFDAC_UNAVAILABLE_REPLY, { parse_mode: 'HTML' });
+      return;
+    }
+    return next();
+  });
 
   registerVerifyCommand(bot, apiBase);
   registerStatusCommand(bot, apiBase);

@@ -70,6 +70,8 @@ Google redirect URI (configure in Google Cloud console):
 | `REQUEST_VERIFICATION_TOKEN` | Form anti-forgery token (from page source) |
 | `NAFDAC_COOKIE`              | Cookie header value for the same session   |
 
+| `NAFDAC_UNAVAILABLE` | If `1`, `true`, or `yes`: verify, search, public verify, and bot image verify return **503** with `code: NAFDAC_UNAVAILABLE` (e.g. upstream captcha). Remove or set `0` when live again. |
+
 ### Product cache (Mongo, lazy revalidation)
 
 Successful portal responses are stored in Mongo. On later lookups the row is **reused** until it is **stale**, then the server re-fetches NAFDAC and **updates** the document. If the portal says the number is **not found** on that revalidation, the cached row is **deleted** and the API responds not found. If NAFDAC **errors** during revalidation, the API returns the **cached** row and logs a warning (cache miss with no row still errors as before).
